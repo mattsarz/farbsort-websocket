@@ -26,7 +26,7 @@ class Controller(object):
     GPIO.setup(LIGHTBARRIER2, GPIO.IN)
 
   def on_poll(self):
-    print "polling..."
+    #print "polling..."
     self._get_input(LIGHTBARRIER1)
     self._get_input(LIGHTBARRIER2)
 
