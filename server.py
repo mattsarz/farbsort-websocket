@@ -12,7 +12,7 @@ CONVEYOR = "P8.11"
 LIGHTBARRIER1 = "P8.16"
 LIGHTBARRIER2 = "P9.24"
 
-POLLING_INTERVAL_1000ms = 1000
+POLLING_INTERVAL_IN_MS = 1000
 WEBSOCKET_PORT = 8888
 
 
@@ -109,6 +109,6 @@ if __name__ == "__main__":
   ])
   http_server = tornado.httpserver.HTTPServer(application)
   http_server.listen(WEBSOCKET_PORT)
-  periodicOneSecTimer = tornado.ioloop.PeriodicCallback(controller.on_poll, POLLING_INTERVAL_1000ms)
+  periodicOneSecTimer = tornado.ioloop.PeriodicCallback(controller.on_poll, POLLING_INTERVAL_IN_MS)
   periodicOneSecTimer.start()
   tornado.ioloop.IOLoop.instance().start()
