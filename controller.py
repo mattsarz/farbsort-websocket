@@ -21,7 +21,7 @@ class Controller(object):
     self._input_values = dict()
     self._last_input_values = dict()
     GPIO.setup(self._CONVEYOR, GPIO.OUT)
-    self.conveyor = GPIO.HIGH
+    self.conveyor = GPIO.LOW
     GPIO.setup(self._COMPRESSOR, GPIO.OUT)
     self.compressor = GPIO.LOW
     GPIO.setup(self._VALVE1, GPIO.OUT)
