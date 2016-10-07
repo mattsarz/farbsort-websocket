@@ -18,7 +18,7 @@ class ColorDetector(object):
 
   def poll(self):
     adc_value = self.raw_value()
-    if self._last_adc_value is None:
+    if self._last_adc_value is not None:
       self.eval_state(adc_value)
       self.eval_object_color(adc_value)
       self._last_state = self._state
