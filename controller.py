@@ -18,6 +18,7 @@ class Controller(object):
   def __init__(self):
     print "Controller.init()..."
     self._current_output_values = dict()
+    self._input_values = dict()
     self._last_input_values = dict()
     GPIO.setup(self._CONVEYOR, GPIO.OUT)
     self.conveyor = GPIO.HIGH
@@ -30,13 +31,17 @@ class Controller(object):
     GPIO.setup(self._VALVE3, GPIO.OUT)
     self.valve3 = GPIO.LOW
     GPIO.setup(self._PULSECOUNTER, GPIO.IN)
+    self._pulsecounter = 0
     GPIO.setup(self._LIGHTBARRIER1, GPIO.IN)
     GPIO.setup(self._LIGHTBARRIER2, GPIO.IN)
     self._color_detector = ColorDetector(debug=False)
 
   def on_poll(self):
     #print "polling..."
-    self._get_input(self._PULSECOUNTER)
+    value = self._get_input(self._PULSECOUNTER)
+    if value != self._last_input_values[self._PULSECOUNTER]:
+      self._pulsecounter += 1
+      print "pulse-counter=%u" % self.pulsecounter
     self._get_input(self._LIGHTBARRIER1)
     self._get_input(self._LIGHTBARRIER2)
     self._color_detector.poll()
@@ -89,6 +94,10 @@ class Controller(object):
     self._current_output_values[pin] = value
 
   @property
+  def pulsecounter(self):
+    return self._pulsecounter
+
+  @property
   def lightbarrier1(self):
     return self._get_input(self._LIGHTBARRIER1)
 
@@ -97,12 +106,13 @@ class Controller(object):
     return self._get_input(self._LIGHTBARRIER2)
 
   def _get_input(self, pin):
+    last_value = self._last_input_values[pin] = self._input_values.get(pin, None)
     now = datetime.datetime.now()
     value = GPIO.input(pin)
-    last_value = self._last_input_values.get(pin, None)
     if value != last_value:
-      #print "%s: pin %s changed: %s -> %s" % (now.isoformat(), pin, last_value, value)
-      self._last_input_values[pin] = value
+      if pin != "P8_15":
+        print "%s: pin %s changed: %s -> %s" % (now.isoformat(), pin, last_value, value)
+      self._input_values[pin] = value
     return value
 
   def __del__(self):
