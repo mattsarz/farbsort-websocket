@@ -1,4 +1,3 @@
-import datetime
 import time
 
 import Adafruit_BBIO.GPIO as GPIO
@@ -7,61 +6,11 @@ import tornado.websocket
 import tornado.ioloop
 import tornado.web
 
+from controller import Controller
 
-CONVEYOR = "P8_11"
-LIGHTBARRIER1 = "P8_16"
-LIGHTBARRIER2 = "P9_24"
 
 POLLING_INTERVAL_IN_MS = 100
 WEBSOCKET_PORT = 8888
-
-
-class Controller(object):
-  def __init__(self):
-    self._current_output_values = dict()
-    self._last_input_values = dict()
-    GPIO.setup(CONVEYOR, GPIO.OUT)
-    self._set_output(CONVEYOR, False)
-    GPIO.setup(LIGHTBARRIER1, GPIO.IN)
-    GPIO.setup(LIGHTBARRIER2, GPIO.IN)
-
-  def on_poll(self):
-    #print "polling..."
-    self._get_input(LIGHTBARRIER1)
-    self._get_input(LIGHTBARRIER2)
-
-  @property
-  def conveyor(self):
-    return self._current_output_values[CONVEYOR]
-
-  @conveyor.setter
-  def conveyor(self, value):
-    return self._set_output(CONVEYOR, value)
-
-  def _set_output(self, pin, value):
-    self._current_output_values[pin] = value
-    output_value = GPIO.HIGH if value else GPIO.LOW
-    GPIO.output(pin, output_value)
-
-  @property
-  def lightbarrier1(self):
-    return self._get_input(LIGHTBARRIER1)
-
-  @property
-  def lightbarrier2(self):
-    return self._get_input(LIGHTBARRIER2)
-
-  def _get_input(self, pin):
-    now = datetime.datetime.now()
-    value = GPIO.input(pin)
-    last_value = self._last_input_values.get(pin, None)
-    if value != last_value:
-      print "%s: pin %s changed: %s -> %s" % (now.isoformat(), pin, last_value, value)
-      self._last_input_values[pin] = value
-    return value
-
-  def __del__(self):
-    self._set_output(CONVEYOR, False)
 
 
 class WSHandler(tornado.websocket.WebSocketHandler):
@@ -75,7 +24,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
   def on_message(self, message):
     print "Got:", message
 
-    if message == "start":
+    if message == "conveyor.start":
       if self._controller.conveyor:
         print "conveyor is already started"
       else:
@@ -84,7 +33,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         self._controller.conveyor = GPIO.HIGH
       print "started"
       self.write_message("started")
-    elif message == 'stop':
+    elif message == "conveyor.stop":
       if not self._controller.conveyor:
         print "conveyor is already stopped"
       else:
@@ -93,22 +42,78 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         self._controller.conveyor = GPIO.LOW
       print "stopped"
       self.write_message("stopped")
+    elif message == "valve1":
+        print "valve1.on..."
+        self._controller.valve1 = GPIO.HIGH
+        time.sleep(1)
+        print "valve1.off..."
+        self._controller.valve1 = GPIO.LOW
+    elif message == "valve2":
+        print "valve1.on..."
+        self._controller.valve2 = GPIO.HIGH
+        time.sleep(1)
+        print "valve1.off..."
+        self._controller.valve2 = GPIO.LOW
+    elif message == "valve3":
+        print "valve3.on..."
+        self._controller.valve3 = GPIO.HIGH
+        time.sleep(1)
+        print "valve3.off..."
+        self._controller.valve3 = GPIO.LOW
+    elif message == "compressor.start":
+      if self._controller.compressor:
+        print "compressor is already started"
+      else:
+        print "starting compressor..."
+        self._controller.compressor = GPIO.HIGH
+      print "compressor started"
+    elif message == "compressor.stop":
+      if not self._controller.compressor:
+        print "compressor is already stopped"
+      else:
+        print "stopping compressor..."
+        self._controller.compressor = GPIO.LOW
+      print "compressor stopped"
 
   def on_close(self):
-    print 'Connection was closed...'
-    self._controller.conveyor = GPIO.LOW
+    print "Connection was closed..."
 
   def check_origin(self, origin):
     return True
 
+  def __del__(self):
+    print "WSHandler.__del__()..."
+
 
 if __name__ == "__main__":
+  import getpass
+  import signal
+  import sys
+
+  if getpass.getuser() != "root":
+    print >> sys.stderr, "run as root"
+    sys.exit(1)
+
   controller = Controller()
+
   application = tornado.web.Application([
-    (r'/ws', WSHandler, dict(controller=controller)),
+    (r"/ws", WSHandler, dict(controller=controller)),
   ])
   http_server = tornado.httpserver.HTTPServer(application)
   http_server.listen(WEBSOCKET_PORT)
-  periodicOneSecTimer = tornado.ioloop.PeriodicCallback(controller.on_poll, POLLING_INTERVAL_IN_MS)
+  periodicOneSecTimer = tornado.ioloop.PeriodicCallback(controller.on_poll,
+                                                        POLLING_INTERVAL_IN_MS)
   periodicOneSecTimer.start()
+
+  def signal_handler(signum, frame):
+    tornado.ioloop.IOLoop.instance().add_callback_from_signal(
+      tornado.ioloop.IOLoop.instance().stop)
+  signal.signal(signal.SIGINT, signal_handler)
+
   tornado.ioloop.IOLoop.instance().start()
+
+  # controller.__del__() is not called, so we cleanup here.
+  controller.compressor = GPIO.LOW
+  controller.conveyor = GPIO.LOW
+  controller.valve1 = GPIO.LOW
+  print "done."
