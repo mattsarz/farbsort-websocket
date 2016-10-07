@@ -5,7 +5,7 @@ class ColorDetector(object):
   _STATE_DESCEND = 2
   _STATE_ASCEND = 3
   _LIMIT_TOLERANCE = 30
-  _NO_OBJECT_LIMIT = 1227
+  _NO_OBJECT_LIMIT = 1225
   _BLUE_OBJECT_LIMIT = 1199 + _LIMIT_TOLERANCE
   _RED_OBJECT_LIMIT = 908 + _LIMIT_TOLERANCE
   _WHITE_OBJECT_LIMIT = 858 + _LIMIT_TOLERANCE
@@ -42,11 +42,11 @@ class ColorDetector(object):
       if ((self._state == self._STATE_ASCEND) and
           (self._last_state == self._STATE_DESCEND)):
         if self._last_adc_value < self._WHITE_OBJECT_LIMIT:
-          print "Got WHITE object"
+          print "Got WHITE object (value=%s)" % self._last_adc_value
         elif self._last_adc_value < self._RED_OBJECT_LIMIT:
-          print "Got RED object"
+          print "Got RED object (value=%s)" % self._last_adc_value
         elif self._last_adc_value < self._BLUE_OBJECT_LIMIT:
-          print "Got BLUE object"
+          print "Got BLUE object (value=%s)" % self._last_adc_value
 
   def raw_value(self):
     with open("/sys/bus/iio/devices/iio:device0/in_voltage0_raw") as f:
