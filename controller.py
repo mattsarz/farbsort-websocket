@@ -2,7 +2,7 @@ import datetime
 
 import Adafruit_BBIO.GPIO as GPIO
 
-from adc import ADC
+from color_detector import ColorDetector
 
 
 class Controller(object):
@@ -32,14 +32,14 @@ class Controller(object):
     GPIO.setup(self._PULSECOUNTER, GPIO.IN)
     GPIO.setup(self._LIGHTBARRIER1, GPIO.IN)
     GPIO.setup(self._LIGHTBARRIER2, GPIO.IN)
-    self._adc = ADC(debug=True)
+    self._color_detector = ColorDetector(debug=False)
 
   def on_poll(self):
     #print "polling..."
     self._get_input(self._PULSECOUNTER)
     self._get_input(self._LIGHTBARRIER1)
     self._get_input(self._LIGHTBARRIER2)
-    self._adc.poll()
+    self._color_detector.poll()
 
   @property
   def conveyor(self):
