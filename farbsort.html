@@ -50,6 +50,28 @@
         $("#thebutton").click(function(){
           sender();
         });
+
+        $("#conveyorstartbutton").click(function(){
+          ws.send("conveyor.start");
+        });
+        $("#conveyorstopbutton").click(function(){
+          ws.send("conveyor.stop");
+        });
+        $("#compressorstartbutton").click(function(){
+          ws.send("compressor.start");
+        });
+        $("#compressorstopbutton").click(function(){
+          ws.send("compressor.stop");
+        });
+        $("#valve1button").click(function(){
+          ws.send("valve1");
+        });
+        $("#valve2button").click(function(){
+          ws.send("valve2");
+        });
+        $("#valve3button").click(function(){
+          ws.send("valve3");
+        });
       });
     </script>
   </head>
@@ -64,7 +86,16 @@
       <input type="button" id="thebutton" value="Send" />
     </div>
 
+    <div style="margin:10px">
+      <input type="button" id="conveyorstartbutton" value="Conveyor Start"/>
+      <input type="button" id="conveyorstopbutton" value="Conveyor Stop"/>
+      <input type="button" id="compressorstartbutton" value="Compressor Start"/>
+      <input type="button" id="compressorstopbutton" value="Compressor Stop"/>
+      <input type="button" id="valve1button" value="Valve 1"/>
+      <input type="button" id="valve2button" value="Valve 2"/>
+      <input type="button" id="valve3button" value="Valve 3"/>
+    </div>
+
     <a href="http://lowpowerlab.com/blog/2013/01/17/raspberrypi-websockets-with-python-tornado/">www.LowPowerLab.com</a>
   </body>
 </html>
-
