@@ -44,10 +44,7 @@ class Controller(object):
 
   def on_poll(self):
     #print "polling..."
-    value = self._get_input(self._PULSECOUNTER)
-    if value != self._last_input_values[self._PULSECOUNTER]:
-      self._pulsecounter += 1
-      print "pulse-counter=%u" % self.pulsecounter
+    self._get_input(self._PULSECOUNTER)
     self._get_input(self._LIGHTBARRIER1)
     self._color_detector.poll()
     self._get_input(self._LIGHTBARRIER2)
@@ -115,14 +112,28 @@ class Controller(object):
     return self._get_input(self._LIGHTBARRIER2)
 
   def _get_input(self, pin):
-    last_value = self._last_input_values[pin] = self._input_values.get(pin, None)
-    now = datetime.datetime.now()
+    last_value = self._last_input_values[pin] = self._input_values.get(
+      pin, None)
     value = GPIO.input(pin)
     if value != last_value:
-      if pin != "P8_15":
-        print "%s: pin %s changed: %s -> %s" % (now.isoformat(), pin, last_value, value)
+      self._on_input_change(pin, value, last_value)
       self._input_values[pin] = value
     return value
+
+  def _on_input_change(self, pin, value, last_value):
+    if pin == self._PULSECOUNTER:
+      self._pulsecounter += 1
+      print "pulse-counter=%u" % self.pulsecounter
+      return
+
+    now = datetime.datetime.now()
+    print "%s: pin %s changed: %s -> %s" % (
+      now.isoformat(), pin, last_value, value)
+
+    if pin == self._LIGHTBARRIER2:
+      if not value:
+        self._pulsecounter = 0
+        print "pulse-counter=%u" % self.pulsecounter
 
   def __del__(self):
     print "Controller.delete()..."
