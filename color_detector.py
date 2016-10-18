@@ -1,5 +1,8 @@
 import datetime
 
+import Adafruit_BBIO.ADC as ADC
+
+
 class ColorDetector(object):
   _STATE_IDLE = 1
   _STATE_DESCEND = 2
@@ -15,6 +18,7 @@ class ColorDetector(object):
     self._last_adc_value = None
     self._state = None
     self._last_state = None
+    ADC.setup()
 
   def poll(self):
     adc_value = self.raw_value()
@@ -49,8 +53,7 @@ class ColorDetector(object):
           print "Got BLUE object (value=%s)" % self._last_adc_value
 
   def raw_value(self):
-    with open("/sys/bus/iio/devices/iio:device0/in_voltage0_raw") as f:
-      adc_value = int(f.read())
-      if self._debug:
-        print "AIN0=%u" % adc_value
-      return adc_value
+    adc_value = ADC.read_raw("AIN0")
+    if self._debug:
+      print "AIN0=%u" % adc_value
+    return adc_value
