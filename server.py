@@ -10,6 +10,7 @@ from controller import Controller
 
 
 POLLING_INTERVAL_IN_MS = 100
+VALVE_ON_TIME_IN_SECS = .3
 WEBSOCKET_PORT = 8888
 
 
@@ -45,19 +46,19 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     elif message == "valve1":
         print "valve1.on..."
         self._controller.valve1 = GPIO.HIGH
-        time.sleep(1)
+        time.sleep(VALVE_ON_TIME_IN_SECS)
         print "valve1.off..."
         self._controller.valve1 = GPIO.LOW
     elif message == "valve2":
         print "valve1.on..."
         self._controller.valve2 = GPIO.HIGH
-        time.sleep(1)
+        time.sleep(VALVE_ON_TIME_IN_SECS)
         print "valve1.off..."
         self._controller.valve2 = GPIO.LOW
     elif message == "valve3":
         print "valve3.on..."
         self._controller.valve3 = GPIO.HIGH
-        time.sleep(1)
+        time.sleep(VALVE_ON_TIME_IN_SECS)
         print "valve3.off..."
         self._controller.valve3 = GPIO.LOW
     elif message == "compressor.start":
