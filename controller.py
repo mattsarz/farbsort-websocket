@@ -14,6 +14,9 @@ class Controller(object):
   _PULSECOUNTER = "P8_15"
   _LIGHTBARRIER1 = "P8_16"
   _LIGHTBARRIER2 = "P9_24"
+  _LIGHTBARRIER3 = "P8_14"
+  _LIGHTBARRIER4 = "P8_17"
+  _LIGHTBARRIER5 = "P8_19"
 
   def __init__(self):
     print "Controller.init()..."
@@ -33,8 +36,11 @@ class Controller(object):
     GPIO.setup(self._PULSECOUNTER, GPIO.IN)
     self._pulsecounter = 0
     GPIO.setup(self._LIGHTBARRIER1, GPIO.IN)
-    GPIO.setup(self._LIGHTBARRIER2, GPIO.IN)
     self._color_detector = ColorDetector(debug=False)
+    GPIO.setup(self._LIGHTBARRIER2, GPIO.IN)
+    GPIO.setup(self._LIGHTBARRIER3, GPIO.IN)
+    GPIO.setup(self._LIGHTBARRIER4, GPIO.IN)
+    GPIO.setup(self._LIGHTBARRIER5, GPIO.IN)
 
   def on_poll(self):
     #print "polling..."
@@ -43,8 +49,11 @@ class Controller(object):
       self._pulsecounter += 1
       print "pulse-counter=%u" % self.pulsecounter
     self._get_input(self._LIGHTBARRIER1)
-    self._get_input(self._LIGHTBARRIER2)
     self._color_detector.poll()
+    self._get_input(self._LIGHTBARRIER2)
+    self._get_input(self._LIGHTBARRIER3)
+    self._get_input(self._LIGHTBARRIER4)
+    self._get_input(self._LIGHTBARRIER5)
 
   @property
   def conveyor(self):
