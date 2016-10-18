@@ -9,5 +9,5 @@ git clone git://github.com/ppoile/farbsort-websocket
 
 Prepare:
 ```
-sudo pip install tornado
+sudo pip install tornado Adafruit-BBIO
 ```
