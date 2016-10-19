@@ -1,0 +1,8 @@
+Adafruit-BBIO==1.0.0
+argparse==1.2.1
+backports-abc==0.4
+certifi==2016.9.26
+singledispatch==3.4.0.3
+six==1.10.0
+tornado==4.4.2
+wsgiref==0.1.2

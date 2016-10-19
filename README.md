@@ -7,7 +7,15 @@ Checkout:
 git clone git://github.com/ppoile/farbsort-websocket
 ```
 
-Prepare:
+Preparation:
 ```
-sudo pip install tornado Adafruit-BBIO
+cd farbsort-websocket
+virtualenv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+Run server:
+```
+sudo venv/bin/python server.py
 ```
