@@ -25,22 +25,22 @@ class WSHandler(tornado.websocket.WebSocketHandler):
   def on_message(self, message):
     print "Got:", message
 
-    if message == "conveyor.start":
-      if self._controller.conveyor:
-        print "conveyor is already started"
+    if message == "motor.start":
+      if self._controller.motor:
+        print "motor is already started"
       else:
         print "starting..."
         self.write_message("starting")
-        self._controller.conveyor = GPIO.HIGH
+        self._controller.motor = GPIO.HIGH
       print "started"
       self.write_message("started")
-    elif message == "conveyor.stop":
-      if not self._controller.conveyor:
-        print "conveyor is already stopped"
+    elif message == "motor.stop":
+      if not self._controller.motor:
+        print "motor is already stopped"
       else:
         print "stopping..."
         self.write_message("stopping")
-        self._controller.conveyor = GPIO.LOW
+        self._controller.motor = GPIO.LOW
       print "stopped"
       self.write_message("stopped")
     elif message == "valve1":
@@ -115,6 +115,6 @@ if __name__ == "__main__":
 
   # controller.__del__() is not called, so we cleanup here.
   controller.compressor = GPIO.LOW
-  controller.conveyor = GPIO.LOW
+  controller.motor = GPIO.LOW
   controller.valve1 = GPIO.LOW
   print "done."

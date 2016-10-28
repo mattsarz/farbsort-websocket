@@ -55,11 +55,11 @@
           sender();
         });
 
-        $("#conveyorstartbutton").click(function(){
-          ws.send("conveyor.start");
+        $("#motorstartbutton").click(function(){
+          ws.send("motor.start");
         });
-        $("#conveyorstopbutton").click(function(){
-          ws.send("conveyor.stop");
+        $("#motorstopbutton").click(function(){
+          ws.send("motor.stop");
         });
         $("#compressorstartbutton").click(function(){
           ws.send("compressor.start");
@@ -91,8 +91,8 @@
     </div>
 
     <div style="margin:10px">
-      <input type="button" id="conveyorstartbutton" value="Conveyor Start"/>
-      <input type="button" id="conveyorstopbutton" value="Conveyor Stop"/>
+      <input type="button" id="motorstartbutton" value="Motor Start"/>
+      <input type="button" id="motorstopbutton" value="Motor Stop"/>
       <input type="button" id="compressorstartbutton" value="Compressor Start"/>
       <input type="button" id="compressorstopbutton" value="Compressor Stop"/>
       <input type="button" id="valve1button" value="Valve 1"/>
