@@ -38,7 +38,12 @@
           $("#log").text("Connection was closed..."); 
           $("#thebutton #msg").prop('disabled', true);
         };
-        ws.onopen = function(evt) { $("#log").text("Opening socket..."); };
+        ws.onopen = function(evt) {
+          $("#log").text("Opening socket...");
+        };
+        ws.onerror = function(error) {
+          $("#log").text("WebSocket Error " + error);
+        };
 
         $("#msg").keypress(function(event) {
           if (event.which == 13) {
