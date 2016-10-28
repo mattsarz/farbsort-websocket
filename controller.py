@@ -26,8 +26,8 @@ class Controller(object):
     self._last_input_values = dict()
     GPIO.setup(self._MOTOR, GPIO.OUT)
     self.motor = GPIO.LOW
-    self._conveyor = False
-    print "conveyor.stopped"
+    self._conveyor_running = False
+    print "conveyor=stopped"
     GPIO.setup(self._COMPRESSOR, GPIO.OUT)
     self.compressor = GPIO.LOW
     GPIO.setup(self._VALVE1, GPIO.OUT)
@@ -48,11 +48,11 @@ class Controller(object):
   def on_poll(self):
     #print "polling..."
     self._get_input(self._PULSECOUNTER)
-    if self._conveyor:
+    if self._conveyor_running:
       seconds_since_last_change = datetime.now() - self._pulsecounter_last_change
       if seconds_since_last_change.total_seconds() > self._PULSECOUNTER_LAST_CHANGE_TO_TIMEOUT_IN_SECONDS:
-        self._conveyor = False
-        print "conveyor.stopped"
+        self._conveyor_running = False
+        print "conveyor=stopped"
     self._get_input(self._LIGHTBARRIER1)
     self._color_detector.poll()
     self._get_input(self._LIGHTBARRIER2)
@@ -113,7 +113,7 @@ class Controller(object):
 
   @property
   def conveyor(self):
-    return self._conveyor
+    return self._conveyor_running
 
   @property
   def lightbarrier1(self):
@@ -140,9 +140,9 @@ class Controller(object):
       self._pulsecounter += 1
       print "pulsecounter=%u" % self.pulsecounter
       self._pulsecounter_last_change = now
-      if not self._conveyor:
-        self._conveyor = True
-        print "conveyor.started (%s -> %s)" % (last_value, value)
+      if not self._conveyor_running:
+        self._conveyor_running = True
+        print "conveyor=running"
       return
 
     print "%s: pin %s changed: %s -> %s" % (
