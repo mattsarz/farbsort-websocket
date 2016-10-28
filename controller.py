@@ -138,7 +138,7 @@ class Controller(object):
       if last_value is None:
         return
       self._pulsecounter += 1
-      print "pulsecounter=%u" % self.pulsecounter
+      print "%s: pulsecounter=%u" % (now.isoformat(), self.pulsecounter)
       self._pulsecounter_last_change = now
       if not self._conveyor_running:
         self._conveyor_running = True
