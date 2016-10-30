@@ -9,7 +9,7 @@ import tornado.web
 from controller import Controller
 
 
-POLLING_INTERVAL_IN_MS = 100
+POLLING_INTERVAL_IN_MS = 1
 VALVE_ON_TIME_IN_SECS = .3
 WEBSOCKET_PORT = 8888
 
