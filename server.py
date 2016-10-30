@@ -7,6 +7,7 @@ import tornado.ioloop
 import tornado.web
 
 from controller import Controller
+from hal import HAL
 
 
 POLLING_INTERVAL_IN_MS = 1
@@ -95,7 +96,8 @@ if __name__ == "__main__":
     print >> sys.stderr, "run as root"
     sys.exit(1)
 
-  controller = Controller()
+  hal = HAL()
+  controller = Controller(hal)
 
   application = tornado.web.Application([
     (r"/ws", WSHandler, dict(controller=controller)),

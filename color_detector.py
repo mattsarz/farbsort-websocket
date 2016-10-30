@@ -1,7 +1,5 @@
 import datetime
 
-import Adafruit_BBIO.ADC as ADC
-
 
 class ColorDetector(object):
   _STATE_IDLE = 1
@@ -13,12 +11,12 @@ class ColorDetector(object):
   _RED_OBJECT_LIMIT = 908 + _LIMIT_TOLERANCE
   _WHITE_OBJECT_LIMIT = 854 + _LIMIT_TOLERANCE
 
-  def __init__(self, debug=False):
+  def __init__(self, hal, debug=False):
+    self._hal = hal
     self._debug = debug
     self._last_adc_value = None
     self._state = None
     self._last_state = None
-    ADC.setup()
 
   def poll(self):
     adc_value = self.raw_value()
@@ -53,7 +51,7 @@ class ColorDetector(object):
           print "Got BLUE object (value=%s)" % self._last_adc_value
 
   def raw_value(self):
-    adc_value = ADC.read_raw("AIN0")
+    adc_value = self._hal.get_analog_input("AIN0")
     if self._debug:
       if adc_value < self._NO_OBJECT_LIMIT:
         now = datetime.datetime.now()
