@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 
 import Adafruit_BBIO.GPIO as GPIO
 
@@ -39,26 +39,31 @@ class Controller(object):
     GPIO.setup(self._PULSECOUNTER, GPIO.IN)
     self._pulsecounter = 0
     GPIO.setup(self._LIGHTBARRIER1, GPIO.IN)
-    self._color_detector = ColorDetector(debug=False)
+    self._color_detector = ColorDetector(debug=True)
     GPIO.setup(self._LIGHTBARRIER2, GPIO.IN)
     GPIO.setup(self._LIGHTBARRIER3, GPIO.IN)
     GPIO.setup(self._LIGHTBARRIER4, GPIO.IN)
     GPIO.setup(self._LIGHTBARRIER5, GPIO.IN)
+    self._start_timestamps = []
+    self._scheduled_colordetect_timestamps = []
+    self._scheduled_pusher_actions = []
 
   def on_poll(self):
     #print "polling..."
     self._get_input(self._PULSECOUNTER)
     if self._conveyor_running:
-      seconds_since_last_change = datetime.now() - self._pulsecounter_last_change
+      seconds_since_last_change = datetime.datetime.now() - self._pulsecounter_last_change
       if seconds_since_last_change.total_seconds() > self._PULSECOUNTER_LAST_CHANGE_TO_TIMEOUT_IN_SECONDS:
         self._conveyor_running = False
         print "conveyor=stopped"
     self._get_input(self._LIGHTBARRIER1)
-    self._color_detector.poll()
     self._get_input(self._LIGHTBARRIER2)
     self._get_input(self._LIGHTBARRIER3)
     self._get_input(self._LIGHTBARRIER4)
     self._get_input(self._LIGHTBARRIER5)
+
+    self._check_scheduled_colordetector_actions()
+    self._check_scheduled_pusher_actions()
 
   @property
   def motor(self):
@@ -102,7 +107,7 @@ class Controller(object):
 
   def _set_output(self, pin, value):
     last_value = self._current_output_values.get(pin, None)
-    now = datetime.now()
+    now = datetime.datetime.now()
     #print "%s: pin %s changed: %s -> %s" % (now.isoformat(), pin, last_value, value)
     GPIO.output(pin, value)
     self._current_output_values[pin] = value
@@ -133,12 +138,12 @@ class Controller(object):
     return value
 
   def _on_input_change(self, pin, value, last_value):
-    now = datetime.now()
+    now = datetime.datetime.now()
     if pin == self._PULSECOUNTER:
       if last_value is None:
         return
       self._pulsecounter += 1
-      print "%s: pulsecounter=%u" % (now.isoformat(), self.pulsecounter)
+      #print "%s: pulsecounter=%u" % (now.isoformat(), self.pulsecounter)
       self._pulsecounter_last_change = now
       if not self._conveyor_running:
         self._conveyor_running = True
@@ -148,10 +153,56 @@ class Controller(object):
     print "%s: pin %s changed: %s -> %s" % (
       now.isoformat(), pin, last_value, value)
 
-    if pin == self._LIGHTBARRIER2:
-      if not value:
+    if pin == self._LIGHTBARRIER1:
+      if last_value == GPIO.LOW and value == GPIO.HIGH:
+        self._start_timestamps.append(now)
+      if last_value == GPIO.HIGH and value == GPIO.LOW:
+        color_detect_timestamp = now + datetime.timedelta(seconds=1.215)
+        self._scheduled_colordetect_timestamps.append(color_detect_timestamp)
+        self._scheduled_colordetect_timestamps.sort()
+    elif pin == self._LIGHTBARRIER2:
+      if last_value == GPIO.HIGH and value == GPIO.LOW:
         self._pulsecounter = 0
         print "pulsecounter=%u" % self.pulsecounter
+      elif last_value == GPIO.LOW and value == GPIO.HIGH:
+        try:
+          start_timestamp = self._start_timestamps.pop(0)
+          duration = now - start_timestamp
+          print "object took %s between LB1 and LB2" % duration
+        except IndexError:
+          print "Hoppla, no corresponding start timestamp found."
+
+        #push_begin_timestamp = now + datetime.timedelta(seconds=.690)
+        #push_begin_timestamp = now + datetime.timedelta(seconds=1.662)
+        push_begin_timestamp = now + datetime.timedelta(seconds=2.741)
+        self._scheduled_pusher_actions.append((push_begin_timestamp, GPIO.HIGH))
+        push_end_timestamp = push_begin_timestamp + datetime.timedelta(seconds=.3)
+        self._scheduled_pusher_actions.append((push_end_timestamp, GPIO.LOW))
+        self._scheduled_pusher_actions.sort()
+
+  def _check_scheduled_pusher_actions(self):
+    try:
+      timeout, value = self._scheduled_pusher_actions[0]
+      now = datetime.datetime.now()
+      if timeout <= now:
+        print "%s: Timeout -> push" % now.isoformat()
+        #self.valve1 = value
+        #self.valve2 = value
+        self.valve3 = value
+        del self._scheduled_pusher_actions[0]
+    except IndexError:
+      pass
+
+  def _check_scheduled_colordetector_actions(self):
+    try:
+      timeout = self._scheduled_colordetect_timestamps[0]
+      now = datetime.datetime.now()
+      if timeout <= now:
+        print "%s: Timeout -> color-detect" % now.isoformat()
+        self._color_detector.poll()
+        del self._scheduled_colordetect_timestamps[0]
+    except IndexError:
+      pass
 
   def __del__(self):
     print "Controller.delete()..."
