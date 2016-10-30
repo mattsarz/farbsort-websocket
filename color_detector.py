@@ -11,9 +11,9 @@ class ColorDetector(object):
   _RED_OBJECT_LIMIT = 908 + _LIMIT_TOLERANCE
   _WHITE_OBJECT_LIMIT = 854 + _LIMIT_TOLERANCE
 
-  def __init__(self, hal, debug=False):
+  def __init__(self, hal, verbose=False):
     self._hal = hal
-    self._debug = debug
+    self._verbose = verbose
     self._last_adc_value = None
     self._state = None
     self._last_state = None
@@ -52,7 +52,7 @@ class ColorDetector(object):
 
   def raw_value(self):
     adc_value = self._hal.get_analog_input("AIN0")
-    if self._debug:
+    if self._verbose:
       if adc_value < self._NO_OBJECT_LIMIT:
         now = datetime.datetime.now()
         print "%s: AIN0=%u" % (now.isoformat(), adc_value)
