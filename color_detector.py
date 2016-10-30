@@ -11,7 +11,7 @@ class ColorDetector(object):
   _NO_OBJECT_LIMIT = 1225
   _BLUE_OBJECT_LIMIT = 1199 + _LIMIT_TOLERANCE
   _RED_OBJECT_LIMIT = 908 + _LIMIT_TOLERANCE
-  _WHITE_OBJECT_LIMIT = 858 + _LIMIT_TOLERANCE
+  _WHITE_OBJECT_LIMIT = 854 + _LIMIT_TOLERANCE
 
   def __init__(self, debug=False):
     self._debug = debug
@@ -33,11 +33,11 @@ class ColorDetector(object):
       if self._state != self._STATE_IDLE:
         print "state=idle"
       self._state = self._STATE_IDLE
-    elif adc_value <= self._last_adc_value:
+    elif adc_value < self._last_adc_value:
       if self._state != self._STATE_DESCEND:
         print "state=descend"
       self._state = self._STATE_DESCEND
-    else:
+    elif adc_value > self._last_adc_value:
       if self._state != self._STATE_ASCEND:
         print "state=ascend"
       self._state = self._STATE_ASCEND
@@ -55,5 +55,7 @@ class ColorDetector(object):
   def raw_value(self):
     adc_value = ADC.read_raw("AIN0")
     if self._debug:
-      print "AIN0=%u" % adc_value
+      if adc_value < self._NO_OBJECT_LIMIT:
+        now = datetime.datetime.now()
+        print "%s: AIN0=%u" % (now.isoformat(), adc_value)
     return adc_value
