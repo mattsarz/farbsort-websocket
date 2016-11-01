@@ -19,3 +19,8 @@ Run server:
 ```
 sudo venv/bin/python server.py
 ```
+
+Run tests:
+```
+make tests
+```
