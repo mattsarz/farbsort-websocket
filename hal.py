@@ -1,8 +1,5 @@
 import datetime
 
-import Adafruit_BBIO.GPIO as GPIO
-import Adafruit_BBIO.ADC as ADC
-
 
 class HAL_base(object):
   MOTOR_PIN = "P8_11"
@@ -57,6 +54,8 @@ class HAL_base(object):
 class HAL(HAL_base):
   def __init__(self, **kwargs):
     super(HAL, self).__init__(**kwargs)
+    global GPIO
+    import Adafruit_BBIO.GPIO as GPIO
     GPIO.setup(self.MOTOR_PIN, GPIO.OUT)
     GPIO.setup(self.COMPRESSOR_PIN, GPIO.OUT)
     GPIO.setup(self.VALVE1_PIN, GPIO.OUT)
@@ -68,6 +67,8 @@ class HAL(HAL_base):
     GPIO.setup(self.LIGHTBARRIER3_PIN, GPIO.IN)
     GPIO.setup(self.LIGHTBARRIER4_PIN, GPIO.IN)
     GPIO.setup(self.LIGHTBARRIER5_PIN, GPIO.IN)
+    global ADC
+    import Adafruit_BBIO.ADC as ADC
     ADC.setup()
 
   def get_input(self, pin):
