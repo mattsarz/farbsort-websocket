@@ -102,9 +102,9 @@ if __name__ == "__main__":
   ])
   http_server = tornado.httpserver.HTTPServer(application)
   http_server.listen(WEBSOCKET_PORT)
-  periodicOneSecTimer = tornado.ioloop.PeriodicCallback(controller.on_poll,
-                                                        POLLING_INTERVAL_IN_MS)
-  periodicOneSecTimer.start()
+  pollingTimer = tornado.ioloop.PeriodicCallback(controller.on_poll,
+                                                 POLLING_INTERVAL_IN_MS)
+  pollingTimer.start()
 
   def signal_handler(signum, frame):
     tornado.ioloop.IOLoop.instance().add_callback_from_signal(
