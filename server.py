@@ -15,13 +15,24 @@ VALVE_ON_TIME_IN_SECS = .3
 WEBSOCKET_PORT = 8888
 
 
+class EventListener(object):
+  def __init__(self):
+    self.events = []
+
+  def on_event_received(self, event):
+    self.events.append(event)
+
+
 class WSHandler(tornado.websocket.WebSocketHandler):
-  def initialize(self, controller):
+  def initialize(self, controller, event_listener):
     self._controller = controller
+    self._event_listener = event_listener
 
   def open(self):
     print "new connection opened"
     self.write_message("Welcome to farbsort control!")
+    self.eventPostTimer = tornado.ioloop.PeriodicCallback(self.write_out_events, 100)
+    self.eventPostTimer.start()
 
   def on_message(self, message):
     print "Got:", message
@@ -78,10 +89,20 @@ class WSHandler(tornado.websocket.WebSocketHandler):
       print "compressor stopped"
 
   def on_close(self):
+    self.eventPostTimer.stop
     print "Connection was closed..."
 
   def check_origin(self, origin):
     return True
+
+  def write_out_events(self):
+    try:
+      while True:
+        event = self._event_listener.events.pop()
+        print "posting %s..." % repr(event)
+        self.write_message(event)
+    except IndexError:
+      pass
 
   def __del__(self):
     print "WSHandler.__del__()..."
@@ -89,6 +110,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
 if __name__ == "__main__":
   import getpass
+  import Queue
   import signal
   import sys
 
@@ -98,9 +120,14 @@ if __name__ == "__main__":
 
   hal = HAL()
   controller = Controller(hal)
+  print "controller initialized"
+
+  event_listener = EventListener()
+  controller.register_event_listener(event_listener)
+  print "event listener connected"
 
   application = tornado.web.Application([
-    (r"/ws", WSHandler, dict(controller=controller)),
+    (r"/ws", WSHandler, dict(controller=controller, event_listener=event_listener)),
   ])
   http_server = tornado.httpserver.HTTPServer(application)
   http_server.listen(WEBSOCKET_PORT)

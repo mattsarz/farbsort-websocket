@@ -11,11 +11,11 @@ class Controller(object):
   VALID_CONTROLLER_MODES = (MODE_NORMAL, MODE_DIAGNOSTIC)
   PULSECOUNTER_LAST_CHANGE_TO_TIMEOUT_IN_SECONDS = 1.0
 
-  def __init__(self, hal, event_queue=None, verbose=False):
+  def __init__(self, hal, verbose=False):
     self._setup_logging(verbose)
     self._logger.debug("init")
     self._hal = hal
-    self._event_queue = event_queue
+    self._listener = None
     self.mode = self.MODE_DIAGNOSTIC
     self.motor = False
     self._conveyor_running = False
@@ -39,9 +39,12 @@ class Controller(object):
     logging.basicConfig(level=logging_level)
     self._logger = logging.getLogger(self.__class__.__name__)
 
+  def register_event_listener(self, listener):
+    self._listener = listener
+
   def post_event(self, msg):
-    if self._event_queue:
-      self._event_queue.put(msg)
+    if self._listener:
+      self._listener.on_event_received(msg)
 
   def on_poll(self):
     self._hal.get_input(self._hal.PULSECOUNTER_PIN)
@@ -147,19 +150,18 @@ class Controller(object):
       self._pulsecounter_last_change = now
       if not self._conveyor_running:
         self._conveyor_running = True
-        if self._event_queue:
-          self.post_event("conveyor=running")
+        self.post_event("conveyor=running")
       return
 
     display_value = "off"
     if value:
       display_value = "on"
-    if self._event_queue:
-      self.post_event("%s=%s" % (pin, value))
+    self.post_event("%s=%s" % (pin, display_value))
     display_last_value = "off"
     if last_value:
       display_last_value = "on"
-    self._logger.debug("pin %s changed: %s -> %s" % (pin, last_value, value))
+    self._logger.debug("pin %s changed: %s -> %s" % (pin, display_last_value,
+                                                     display_value))
 
     if pin == self._hal.LIGHTBARRIER1_PIN:
       if last_value == False and value == True:
@@ -171,8 +173,7 @@ class Controller(object):
     elif pin == self._hal.LIGHTBARRIER2_PIN:
       if last_value == True and value == False:
         self._pulsecounter = 0
-        if self._event_queue:
-          self.post_event("pulsecounter=%u" % self.pulsecounter)
+        self.post_event("pulsecounter=%u" % self.pulsecounter)
       elif last_value == False and value == True:
         try:
           start_timestamp = self._start_timestamps.pop(0)
