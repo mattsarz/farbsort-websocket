@@ -1,18 +1,51 @@
 import datetime
 
 
+class Pin(object):
+  DIRECTION_INPUT = "input"
+  DIRECTION_OUTPUT = "output"
+  def __init__(self, name, pad, direction=None):
+    self._name = name
+    self._pad = pad
+    self._direction = direction
+
+  @property
+  def name(self):
+    return self._name
+
+  @property
+  def pad(self):
+    return self._pad
+
+  @property
+  def direction(self):
+    return self._direction
+
+  def __str__(self):
+    return self._name
+
+class InputPin(Pin):
+  def __init__(self, name, pad):
+    super(InputPin, self).__init__(name, pad, direction=Pin.DIRECTION_INPUT)
+
+
+class OutputPin(Pin):
+  def __init__(self, name, pad):
+    super(OutputPin, self).__init__(name, pad, direction=Pin.DIRECTION_OUTPUT)
+
+
 class HAL_base(object):
-  MOTOR_PIN = "P8_11"
-  COMPRESSOR_PIN = "P8_13"
-  VALVE1_PIN = "P8_12"
-  VALVE2_PIN = "P9_25"
-  VALVE3_PIN = "P9_27"
-  PULSECOUNTER_PIN = "P8_15"
-  LIGHTBARRIER1_PIN = "P8_16"
-  LIGHTBARRIER2_PIN = "P9_24"
-  LIGHTBARRIER3_PIN = "P8_14"
-  LIGHTBARRIER4_PIN = "P8_17"
-  LIGHTBARRIER5_PIN = "P8_19"
+  MOTOR = OutputPin("motor", "P8_11")
+  COMPRESSOR = OutputPin("compressor", "P8_13")
+  VALVE1 = OutputPin("valve1", "P8_12")
+  VALVE2 = OutputPin("valve2", "P9_25")
+  VALVE3 = OutputPin("valve3", "P9_27")
+  PULSECOUNTER = InputPin("pulsecounter", "P8_15")
+  LIGHTBARRIER1 = InputPin("lightbarrier1", "P8_16")
+  LIGHTBARRIER2 = InputPin("lightbarrier2", "P9_24")
+  LIGHTBARRIER3 = InputPin("lightbarrier3", "P8_14")
+  LIGHTBARRIER4 = InputPin("lightbarrier4", "P8_17")
+  LIGHTBARRIER5 = InputPin("lightbarrier5", "P8_19")
 
   def __init__(self, verbose=False):
     self._verbose = verbose
@@ -56,29 +89,35 @@ class HAL(HAL_base):
     super(HAL, self).__init__(**kwargs)
     global GPIO
     import Adafruit_BBIO.GPIO as GPIO
-    GPIO.setup(self.MOTOR_PIN, GPIO.OUT)
-    GPIO.setup(self.COMPRESSOR_PIN, GPIO.OUT)
-    GPIO.setup(self.VALVE1_PIN, GPIO.OUT)
-    GPIO.setup(self.VALVE2_PIN, GPIO.OUT)
-    GPIO.setup(self.VALVE3_PIN, GPIO.OUT)
-    GPIO.setup(self.PULSECOUNTER_PIN, GPIO.IN)
-    GPIO.setup(self.LIGHTBARRIER1_PIN, GPIO.IN)
-    GPIO.setup(self.LIGHTBARRIER2_PIN, GPIO.IN)
-    GPIO.setup(self.LIGHTBARRIER3_PIN, GPIO.IN)
-    GPIO.setup(self.LIGHTBARRIER4_PIN, GPIO.IN)
-    GPIO.setup(self.LIGHTBARRIER5_PIN, GPIO.IN)
+    self._setup_pin(self.MOTOR)
+    self._setup_pin(self.COMPRESSOR)
+    self._setup_pin(self.VALVE1)
+    self._setup_pin(self.VALVE2)
+    self._setup_pin(self.VALVE3)
+    self._setup_pin(self.PULSECOUNTER)
+    self._setup_pin(self.LIGHTBARRIER1)
+    self._setup_pin(self.LIGHTBARRIER2)
+    self._setup_pin(self.LIGHTBARRIER3)
+    self._setup_pin(self.LIGHTBARRIER4)
+    self._setup_pin(self.LIGHTBARRIER5)
     global ADC
     import Adafruit_BBIO.ADC as ADC
     ADC.setup()
 
+  def _setup_pin(self, pin):
+    direction = GPIO.IN
+    if pin.direction == Pin.DIRECTION_OUTPUT:
+      direction = GPIO.OUT
+    GPIO.setup(pin.pad, direction)
+
   def get_input(self, pin):
-    value = GPIO.input(pin)
+    value = GPIO.input(pin.pad)
     self._handle_input_change(pin, value)
     return value
 
   def set_output(self, pin, value):
     super(HAL, self).set_output(pin, value)
-    GPIO.output(pin, value)
+    GPIO.output(pin.pad, value)
 
   def get_analog_input(self, pin):
     return ADC.read_raw(pin)

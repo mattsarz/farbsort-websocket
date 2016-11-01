@@ -36,17 +36,17 @@ class TestBasics(unittest.TestCase):
         hal = HAL()
         c = Controller(hal=hal)
         self.assertFalse(c.motor)
-        self.assertFalse(hal.get_output(hal.MOTOR_PIN))
+        self.assertFalse(hal.get_output(hal.MOTOR))
 
     def test_motor_set(self):
         hal = HAL()
         c = Controller(hal=hal)
         c.motor = True
         self.assertTrue(c.motor)
-        self.assertTrue(hal.get_output(hal.MOTOR_PIN))
+        self.assertTrue(hal.get_output(hal.MOTOR))
         c.motor = False
         self.assertFalse(c.motor)
-        self.assertFalse(hal.get_output(hal.MOTOR_PIN))
+        self.assertFalse(hal.get_output(hal.MOTOR))
 
     def test_compressor_default(self):
         c = Controller(hal=HAL())
@@ -57,58 +57,58 @@ class TestBasics(unittest.TestCase):
         c = Controller(hal=hal)
         c.compressor = True
         self.assertTrue(c.compressor)
-        self.assertTrue(hal.get_output(hal.COMPRESSOR_PIN))
+        self.assertTrue(hal.get_output(hal.COMPRESSOR))
         c.compressor = False
         self.assertFalse(c.compressor)
-        self.assertFalse(hal.get_output(hal.COMPRESSOR_PIN))
+        self.assertFalse(hal.get_output(hal.COMPRESSOR))
 
     def test_valve1_default(self):
         hal = HAL()
         c = Controller(hal=hal)
         self.assertFalse(c.valve1)
-        self.assertFalse(hal.get_output(hal.VALVE1_PIN))
+        self.assertFalse(hal.get_output(hal.VALVE1))
 
     def test_valve1_set(self):
         hal = HAL()
         c = Controller(hal=hal)
         c.valve1 = True
         self.assertTrue(c.valve1)
-        self.assertTrue(hal.get_output(hal.VALVE1_PIN))
+        self.assertTrue(hal.get_output(hal.VALVE1))
         c.valve1 = False
         self.assertFalse(c.valve1)
-        self.assertFalse(hal.get_output(hal.VALVE1_PIN))
+        self.assertFalse(hal.get_output(hal.VALVE1))
 
     def test_valve2_default(self):
         hal = HAL()
         c = Controller(hal=hal)
         self.assertFalse(c.valve2)
-        self.assertFalse(hal.get_output(hal.VALVE2_PIN))
+        self.assertFalse(hal.get_output(hal.VALVE2))
 
     def test_valve2_set(self):
         hal = HAL()
         c = Controller(hal=hal)
         c.valve2 = True
         self.assertTrue(c.valve2)
-        self.assertTrue(hal.get_output(hal.VALVE2_PIN))
+        self.assertTrue(hal.get_output(hal.VALVE2))
         c.valve2 = False
         self.assertFalse(c.valve2)
-        self.assertFalse(hal.get_output(hal.VALVE2_PIN))
+        self.assertFalse(hal.get_output(hal.VALVE2))
 
     def test_valve3_default(self):
         hal = HAL()
         c = Controller(hal=hal)
         self.assertFalse(c.valve3)
-        self.assertFalse(hal.get_output(hal.VALVE3_PIN))
+        self.assertFalse(hal.get_output(hal.VALVE3))
 
     def test_valve3_set(self):
         hal = HAL()
         c = Controller(hal=hal)
         c.valve3 = True
         self.assertTrue(c.valve3)
-        self.assertTrue(hal.get_output(hal.VALVE3_PIN))
+        self.assertTrue(hal.get_output(hal.VALVE3))
         c.valve3 = False
         self.assertFalse(c.valve3)
-        self.assertFalse(hal.get_output(hal.VALVE3_PIN))
+        self.assertFalse(hal.get_output(hal.VALVE3))
 
     def test_pulsecounter_default(self):
         c = Controller(hal=HAL())
@@ -117,84 +117,84 @@ class TestBasics(unittest.TestCase):
     def test_pulsecounter_increment(self):
         hal = HAL()
         c = Controller(hal=hal)
-        hal.set_input(hal.PULSECOUNTER_PIN, True)
+        hal.set_input(hal.PULSECOUNTER, True)
         c.on_poll()
-        hal.set_input(hal.PULSECOUNTER_PIN, False)
+        hal.set_input(hal.PULSECOUNTER, False)
         c.on_poll()
         self.assertEquals(c.pulsecounter, 1)
         
     def test_pulsecounter_reset(self):
         hal = HAL()
         c = Controller(hal=hal)
-        hal.set_input(hal.PULSECOUNTER_PIN, True)
+        hal.set_input(hal.PULSECOUNTER, True)
         c.on_poll()
-        hal.set_input(hal.PULSECOUNTER_PIN, False)
+        hal.set_input(hal.PULSECOUNTER, False)
         c.on_poll()
         self.assertEquals(c.pulsecounter, 1)
-        hal.set_input(hal.LIGHTBARRIER2_PIN, True)
+        hal.set_input(hal.LIGHTBARRIER2, True)
         c.on_poll()
-        hal.set_input(hal.LIGHTBARRIER2_PIN, False)
+        hal.set_input(hal.LIGHTBARRIER2, False)
         c.on_poll()
         self.assertEquals(c.pulsecounter, 0)
 
     def test_lightbarrier1_default(self):
         hal = HAL()
         c = Controller(hal=hal)
-        self.assertFalse(hal.get_input(hal.LIGHTBARRIER1_PIN))
+        self.assertFalse(hal.get_input(hal.LIGHTBARRIER1))
         self.assertFalse(c.lightbarrier1)
 
     def test_lightbarrier1_set(self):
         hal = HAL()
         c = Controller(hal=hal)
-        hal.set_input(hal.LIGHTBARRIER1_PIN, True)
+        hal.set_input(hal.LIGHTBARRIER1, True)
         self.assertTrue(c.lightbarrier1)
 
     def test_lightbarrier2_default(self):
         hal = HAL()
         c = Controller(hal=hal)
-        self.assertFalse(hal.get_input(hal.LIGHTBARRIER2_PIN))
+        self.assertFalse(hal.get_input(hal.LIGHTBARRIER2))
         self.assertFalse(c.lightbarrier2)
 
     def test_lightbarrier2_set(self):
         hal = HAL()
         c = Controller(hal=hal)
-        hal.set_input(hal.LIGHTBARRIER2_PIN, True)
+        hal.set_input(hal.LIGHTBARRIER2, True)
         self.assertTrue(c.lightbarrier2)
 
     def test_lightbarrier3_default(self):
         hal = HAL()
         c = Controller(hal=hal)
-        self.assertFalse(hal.get_input(hal.LIGHTBARRIER3_PIN))
+        self.assertFalse(hal.get_input(hal.LIGHTBARRIER3))
         self.assertFalse(c.lightbarrier3)
 
     def test_lightbarrier3_set(self):
         hal = HAL()
         c = Controller(hal=hal)
-        hal.set_input(hal.LIGHTBARRIER3_PIN, True)
+        hal.set_input(hal.LIGHTBARRIER3, True)
         self.assertTrue(c.lightbarrier3)
 
     def test_lightbarrier4_default(self):
         hal = HAL()
         c = Controller(hal=hal)
-        self.assertFalse(hal.get_input(hal.LIGHTBARRIER4_PIN))
+        self.assertFalse(hal.get_input(hal.LIGHTBARRIER4))
         self.assertFalse(c.lightbarrier4)
 
     def test_lightbarrier4_set(self):
         hal = HAL()
         c = Controller(hal=hal)
-        hal.set_input(hal.LIGHTBARRIER4_PIN, True)
+        hal.set_input(hal.LIGHTBARRIER4, True)
         self.assertTrue(c.lightbarrier4)
 
     def test_lightbarrier5_default(self):
         hal = HAL()
         c = Controller(hal=hal)
-        self.assertFalse(hal.get_input(hal.LIGHTBARRIER5_PIN))
+        self.assertFalse(hal.get_input(hal.LIGHTBARRIER5))
         self.assertFalse(c.lightbarrier5)
 
     def test_lightbarrier5_set(self):
         hal = HAL()
         c = Controller(hal=hal)
-        hal.set_input(hal.LIGHTBARRIER5_PIN, True)
+        hal.set_input(hal.LIGHTBARRIER5, True)
         self.assertTrue(c.lightbarrier5)
 
     def test_conveyor_default(self):
@@ -204,18 +204,18 @@ class TestBasics(unittest.TestCase):
     def test_conveyor_set(self):
         hal = HAL()
         c = Controller(hal=hal)
-        hal.set_input(hal.PULSECOUNTER_PIN, True)
+        hal.set_input(hal.PULSECOUNTER, True)
         c.on_poll()
-        hal.set_input(hal.PULSECOUNTER_PIN, False)
+        hal.set_input(hal.PULSECOUNTER, False)
         c.on_poll()
         self.assertTrue(c.conveyor)
 
     def test_conveyor_reset(self):
         hal = HAL()
         c = Controller(hal=hal)
-        hal.set_input(hal.PULSECOUNTER_PIN, True)
+        hal.set_input(hal.PULSECOUNTER, True)
         c.on_poll()
-        hal.set_input(hal.PULSECOUNTER_PIN, False)
+        hal.set_input(hal.PULSECOUNTER, False)
         c.on_poll()
         self.assertTrue(c.conveyor)
         time.sleep(2 * Controller.PULSECOUNTER_LAST_CHANGE_TO_TIMEOUT_IN_SECONDS)
@@ -241,9 +241,9 @@ class TestEventListener(unittest.TestCase):
         c = Controller(hal=hal)
         event_listener = EventListener()
         c.register_event_listener(event_listener)
-        hal.set_input(hal.PULSECOUNTER_PIN, True)
+        hal.set_input(hal.PULSECOUNTER, True)
         c.on_poll()
-        hal.set_input(hal.PULSECOUNTER_PIN, False)
+        hal.set_input(hal.PULSECOUNTER, False)
         c.on_poll()
         self.assertEqual(event_listener.events[-1], 'conveyor=running')
         time.sleep(2 * Controller.PULSECOUNTER_LAST_CHANGE_TO_TIMEOUT_IN_SECONDS)
@@ -255,34 +255,34 @@ class TestEventListener(unittest.TestCase):
         c = Controller(hal=hal)
         event_listener = EventListener()
         c.register_event_listener(event_listener)
-        hal.set_input(hal.LIGHTBARRIER1_PIN, True)
+        hal.set_input(hal.LIGHTBARRIER1, True)
         c.on_poll()
-        self.assertEqual(event_listener.events[-1], 'P8_16=on')
-        hal.set_input(hal.LIGHTBARRIER1_PIN, False)
+        self.assertEqual(event_listener.events[-1], 'lightbarrier1=on')
+        hal.set_input(hal.LIGHTBARRIER1, False)
         c.on_poll()
-        self.assertEqual(event_listener.events[-1], 'P8_16=off')
-        hal.set_input(hal.LIGHTBARRIER2_PIN, True)
+        self.assertEqual(event_listener.events[-1], 'lightbarrier1=off')
+        hal.set_input(hal.LIGHTBARRIER2, True)
         c.on_poll()
-        self.assertEqual(event_listener.events[-1], 'P9_24=on')
-        hal.set_input(hal.LIGHTBARRIER2_PIN, False)
+        self.assertEqual(event_listener.events[-1], 'lightbarrier2=on')
+        hal.set_input(hal.LIGHTBARRIER2, False)
         c.on_poll()
         self.assertEqual(event_listener.events[-1], 'pulsecounter=0')
-        self.assertEqual(event_listener.events[-2], 'P9_24=off')
-        hal.set_input(hal.LIGHTBARRIER3_PIN, True)
+        self.assertEqual(event_listener.events[-2], 'lightbarrier2=off')
+        hal.set_input(hal.LIGHTBARRIER3, True)
         c.on_poll()
-        self.assertEqual(event_listener.events[-1], 'P8_14=on')
-        hal.set_input(hal.LIGHTBARRIER3_PIN, False)
+        self.assertEqual(event_listener.events[-1], 'lightbarrier3=on')
+        hal.set_input(hal.LIGHTBARRIER3, False)
         c.on_poll()
-        self.assertEqual(event_listener.events[-1], 'P8_14=off')
-        hal.set_input(hal.LIGHTBARRIER4_PIN, True)
+        self.assertEqual(event_listener.events[-1], 'lightbarrier3=off')
+        hal.set_input(hal.LIGHTBARRIER4, True)
         c.on_poll()
-        self.assertEqual(event_listener.events[-1], 'P8_17=on')
-        hal.set_input(hal.LIGHTBARRIER4_PIN, False)
+        self.assertEqual(event_listener.events[-1], 'lightbarrier4=on')
+        hal.set_input(hal.LIGHTBARRIER4, False)
         c.on_poll()
-        self.assertEqual(event_listener.events[-1], 'P8_17=off')
-        hal.set_input(hal.LIGHTBARRIER5_PIN, True)
+        self.assertEqual(event_listener.events[-1], 'lightbarrier4=off')
+        hal.set_input(hal.LIGHTBARRIER5, True)
         c.on_poll()
-        self.assertEqual(event_listener.events[-1], 'P8_19=on')
-        hal.set_input(hal.LIGHTBARRIER5_PIN, False)
+        self.assertEqual(event_listener.events[-1], 'lightbarrier5=on')
+        hal.set_input(hal.LIGHTBARRIER5, False)
         c.on_poll()
-        self.assertEqual(event_listener.events[-1], 'P8_19=off')
+        self.assertEqual(event_listener.events[-1], 'lightbarrier5=off')

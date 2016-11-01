@@ -47,17 +47,17 @@ class Controller(object):
       self._listener.on_event_received(msg)
 
   def on_poll(self):
-    self._hal.get_input(self._hal.PULSECOUNTER_PIN)
+    self._hal.get_input(self._hal.PULSECOUNTER)
     if self._conveyor_running:
       seconds_since_last_change = datetime.datetime.now() - self._pulsecounter_last_change
       if seconds_since_last_change.total_seconds() > self.PULSECOUNTER_LAST_CHANGE_TO_TIMEOUT_IN_SECONDS:
         self._conveyor_running = False
         self.post_event("conveyor=stopped")
-    self._hal.get_input(self._hal.LIGHTBARRIER1_PIN)
-    self._hal.get_input(self._hal.LIGHTBARRIER2_PIN)
-    self._hal.get_input(self._hal.LIGHTBARRIER3_PIN)
-    self._hal.get_input(self._hal.LIGHTBARRIER4_PIN)
-    self._hal.get_input(self._hal.LIGHTBARRIER5_PIN)
+    self._hal.get_input(self._hal.LIGHTBARRIER1)
+    self._hal.get_input(self._hal.LIGHTBARRIER2)
+    self._hal.get_input(self._hal.LIGHTBARRIER3)
+    self._hal.get_input(self._hal.LIGHTBARRIER4)
+    self._hal.get_input(self._hal.LIGHTBARRIER5)
 
     self._check_scheduled_colordetector_actions()
     self._check_scheduled_pusher_actions()
@@ -74,43 +74,43 @@ class Controller(object):
 
   @property
   def motor(self):
-    return self._hal.get_output(self._hal.MOTOR_PIN)
+    return self._hal.get_output(self._hal.MOTOR)
 
   @motor.setter
   def motor(self, value):
-    return self._hal.set_output(self._hal.MOTOR_PIN, value)
+    return self._hal.set_output(self._hal.MOTOR, value)
 
   @property
   def compressor(self):
-    return self._hal.get_output(self._hal.COMPRESSOR_PIN)
+    return self._hal.get_output(self._hal.COMPRESSOR)
 
   @compressor.setter
   def compressor(self, value):
-    return self._hal.set_output(self._hal.COMPRESSOR_PIN, value)
+    return self._hal.set_output(self._hal.COMPRESSOR, value)
 
   @property
   def valve1(self):
-    return self._hal.get_output(self._hal.VALVE1_PIN)
+    return self._hal.get_output(self._hal.VALVE1)
 
   @valve1.setter
   def valve1(self, value):
-    return self._hal.set_output(self._hal.VALVE1_PIN, value)
+    return self._hal.set_output(self._hal.VALVE1, value)
 
   @property
   def valve2(self):
-    return self._hal.get_output(self._hal.VALVE2_PIN)
+    return self._hal.get_output(self._hal.VALVE2)
 
   @valve2.setter
   def valve2(self, value):
-    return self._hal.set_output(self._hal.VALVE2_PIN, value)
+    return self._hal.set_output(self._hal.VALVE2, value)
 
   @property
   def valve3(self):
-    return self._hal.get_output(self._hal.VALVE3_PIN)
+    return self._hal.get_output(self._hal.VALVE3)
 
   @valve3.setter
   def valve3(self, value):
-    return self._hal.set_output(self._hal.VALVE3_PIN, value)
+    return self._hal.set_output(self._hal.VALVE3, value)
 
   @property
   def pulsecounter(self):
@@ -122,27 +122,27 @@ class Controller(object):
 
   @property
   def lightbarrier1(self):
-    return self._hal.get_input(self._hal.LIGHTBARRIER1_PIN)
+    return self._hal.get_input(self._hal.LIGHTBARRIER1)
 
   @property
   def lightbarrier2(self):
-    return self._hal.get_input(self._hal.LIGHTBARRIER2_PIN)
+    return self._hal.get_input(self._hal.LIGHTBARRIER2)
 
   @property
   def lightbarrier3(self):
-    return self._hal.get_input(self._hal.LIGHTBARRIER3_PIN)
+    return self._hal.get_input(self._hal.LIGHTBARRIER3)
 
   @property
   def lightbarrier4(self):
-    return self._hal.get_input(self._hal.LIGHTBARRIER4_PIN)
+    return self._hal.get_input(self._hal.LIGHTBARRIER4)
 
   @property
   def lightbarrier5(self):
-    return self._hal.get_input(self._hal.LIGHTBARRIER5_PIN)
+    return self._hal.get_input(self._hal.LIGHTBARRIER5)
 
   def _on_input_change(self, pin, value, last_value):
     now = datetime.datetime.now()
-    if pin == self._hal.PULSECOUNTER_PIN:
+    if pin == self._hal.PULSECOUNTER:
       if last_value is None:
         return
       self._pulsecounter += 1
@@ -163,14 +163,14 @@ class Controller(object):
     self._logger.debug("pin %s changed: %s -> %s" % (pin, display_last_value,
                                                      display_value))
 
-    if pin == self._hal.LIGHTBARRIER1_PIN:
+    if pin == self._hal.LIGHTBARRIER1:
       if last_value == False and value == True:
         self._start_timestamps.append(now)
       if last_value == True and value == False:
         color_detect_timestamp = now + datetime.timedelta(seconds=1.215)
         self._scheduled_colordetect_timestamps.append(color_detect_timestamp)
         self._scheduled_colordetect_timestamps.sort()
-    elif pin == self._hal.LIGHTBARRIER2_PIN:
+    elif pin == self._hal.LIGHTBARRIER2:
       if last_value == True and value == False:
         self._pulsecounter = 0
         self.post_event("pulsecounter=%u" % self.pulsecounter)

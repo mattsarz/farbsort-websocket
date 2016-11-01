@@ -1,6 +1,29 @@
 import unittest
 
 from hal import HAL_simulated as HAL
+from hal import InputPin
+from hal import OutputPin
+from hal import Pin
+
+
+class TestPin(unittest.TestCase):
+    def test_input_name(self):
+        pin_name = "pin-name"
+        pad_name = "pad"
+        input_pin = InputPin(pin_name, pad_name)
+        self.assertEqual(input_pin.name, pin_name)
+        self.assertEqual(input_pin.pad, pad_name)
+        self.assertEqual(input_pin.direction, Pin.DIRECTION_INPUT)
+        self.assertEqual(str(input_pin), input_pin.name)
+
+    def test_output_name(self):
+        pin_name = "pin-name"
+        pad_name = "pad-name"
+        output_pin = OutputPin(pin_name, pad_name)
+        self.assertEqual(output_pin.name, pin_name)
+        self.assertEqual(output_pin.pad, pad_name)
+        self.assertEqual(output_pin.direction, Pin.DIRECTION_OUTPUT)
+        self.assertEqual(str(output_pin), output_pin.name)
 
 
 class TestHAL(unittest.TestCase):
