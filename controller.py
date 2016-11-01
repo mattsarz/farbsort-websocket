@@ -11,14 +11,15 @@ class Controller(object):
   VALID_CONTROLLER_MODES = (MODE_NORMAL, MODE_DIAGNOSTIC)
   PULSECOUNTER_LAST_CHANGE_TO_TIMEOUT_IN_SECONDS = 1.0
 
-  def __init__(self, hal, verbose=False):
+  def __init__(self, hal, event_queue=None, verbose=False):
     self._setup_logging(verbose)
     self._logger.debug("init")
     self._hal = hal
+    self._event_queue = event_queue
     self.mode = self.MODE_DIAGNOSTIC
     self.motor = False
     self._conveyor_running = False
-    print "conveyor=stopped"
+    self.post_event("conveyor=stopped")
     self.compressor = False
     self.valve1 = False
     self.valve2 = False
@@ -38,13 +39,17 @@ class Controller(object):
     logging.basicConfig(level=logging_level)
     self._logger = logging.getLogger(self.__class__.__name__)
 
+  def post_event(self, msg):
+    if self._event_queue:
+      self._event_queue.put(msg)
+
   def on_poll(self):
     self._hal.get_input(self._hal.PULSECOUNTER_PIN)
     if self._conveyor_running:
       seconds_since_last_change = datetime.datetime.now() - self._pulsecounter_last_change
       if seconds_since_last_change.total_seconds() > self.PULSECOUNTER_LAST_CHANGE_TO_TIMEOUT_IN_SECONDS:
         self._conveyor_running = False
-        print "conveyor=stopped"
+        self.post_event("conveyor=stopped")
     self._hal.get_input(self._hal.LIGHTBARRIER1_PIN)
     self._hal.get_input(self._hal.LIGHTBARRIER2_PIN)
     self._hal.get_input(self._hal.LIGHTBARRIER3_PIN)
@@ -142,17 +147,18 @@ class Controller(object):
       self._pulsecounter_last_change = now
       if not self._conveyor_running:
         self._conveyor_running = True
-        print "conveyor=running"
+        if self._event_queue:
+          self.post_event("conveyor=running")
       return
 
     display_value = "off"
     if value:
       display_value = "on"
-    print "%s=%s" % (pin, value)
+    if self._event_queue:
+      self.post_event("%s=%s" % (pin, value))
     display_last_value = "off"
     if last_value:
       display_last_value = "on"
-    print "%s=%s" % (pin, value)
     self._logger.debug("pin %s changed: %s -> %s" % (pin, last_value, value))
 
     if pin == self._hal.LIGHTBARRIER1_PIN:
@@ -165,7 +171,8 @@ class Controller(object):
     elif pin == self._hal.LIGHTBARRIER2_PIN:
       if last_value == True and value == False:
         self._pulsecounter = 0
-        print "pulsecounter=%u" % self.pulsecounter
+        if self._event_queue:
+          self.post_event("pulsecounter=%u" % self.pulsecounter)
       elif last_value == False and value == True:
         try:
           start_timestamp = self._start_timestamps.pop(0)
@@ -188,7 +195,7 @@ class Controller(object):
       timeout, value = self._scheduled_pusher_actions[0]
       now = datetime.datetime.now()
       if timeout <= now:
-        print "%s: Timeout -> push" % now.isoformat()
+        self._logger.debug("%s: Timeout -> push" % now.isoformat())
         #self.valve1 = value
         #self.valve2 = value
         self.valve3 = value
@@ -201,7 +208,7 @@ class Controller(object):
       timeout = self._scheduled_colordetect_timestamps[0]
       now = datetime.datetime.now()
       if timeout <= now:
-        print "%s: Timeout -> color-detect" % now.isoformat()
+        self._logger.debug("%s: Timeout -> color-detect" % now.isoformat())
         self._color_detector.poll()
         del self._scheduled_colordetect_timestamps[0]
     except IndexError:

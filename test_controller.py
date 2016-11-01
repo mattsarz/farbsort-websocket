@@ -1,3 +1,5 @@
+from collections import deque
+import Queue
 import time
 import unittest
 
@@ -5,7 +7,15 @@ from controller import Controller
 from hal import HAL_simulated as HAL
 
 
-class TestController(unittest.TestCase):
+class TestObserver(object):
+  def __init__(self):
+    self.updates = []
+
+  def update(self, *args, **kwargs):
+    self.updates.append((datetime.datetime.now(), args, kwargs))
+
+
+class TestBasics(unittest.TestCase):
     def test_instance(self):
         c = Controller(hal=HAL())
 
@@ -211,3 +221,59 @@ class TestController(unittest.TestCase):
         time.sleep(2 * Controller.PULSECOUNTER_LAST_CHANGE_TO_TIMEOUT_IN_SECONDS)
         c.on_poll()
         self.assertFalse(c.conveyor)
+
+class TestEventQueue(unittest.TestCase):
+    def test_after_init(self):
+        event_queue = Queue.Queue()
+        hal = HAL()
+        c = Controller(hal=hal, event_queue=event_queue)
+        self.assertEqual(list(event_queue.queue), ['conveyor=stopped'])
+
+    def test_with_pulsecounter(self):
+        event_queue = Queue.Queue()
+        hal = HAL()
+        c = Controller(hal=hal, event_queue=event_queue)
+        hal.set_input(hal.PULSECOUNTER_PIN, True)
+        c.on_poll()
+        hal.set_input(hal.PULSECOUNTER_PIN, False)
+        c.on_poll()
+        self.assertEqual(event_queue.queue[-1], 'conveyor=running')
+        time.sleep(2 * Controller.PULSECOUNTER_LAST_CHANGE_TO_TIMEOUT_IN_SECONDS)
+        c.on_poll()
+        self.assertEqual(event_queue.queue[-1], 'conveyor=stopped')
+
+    def test_with_lightbarriers(self):
+        event_queue = Queue.Queue()
+        hal = HAL()
+        c = Controller(hal=hal, event_queue=event_queue)
+        hal.set_input(hal.LIGHTBARRIER1_PIN, True)
+        c.on_poll()
+        self.assertEqual(event_queue.queue[-1], 'P8_16=True')
+        hal.set_input(hal.LIGHTBARRIER1_PIN, False)
+        c.on_poll()
+        self.assertEqual(event_queue.queue[-1], 'P8_16=False')
+        hal.set_input(hal.LIGHTBARRIER2_PIN, True)
+        c.on_poll()
+        self.assertEqual(event_queue.queue[-1], 'P9_24=True')
+        hal.set_input(hal.LIGHTBARRIER2_PIN, False)
+        c.on_poll()
+        self.assertEqual(event_queue.queue[-1], 'pulsecounter=0')
+        self.assertEqual(event_queue.queue[-2], 'P9_24=False')
+        hal.set_input(hal.LIGHTBARRIER3_PIN, True)
+        c.on_poll()
+        self.assertEqual(event_queue.queue[-1], 'P8_14=True')
+        hal.set_input(hal.LIGHTBARRIER3_PIN, False)
+        c.on_poll()
+        self.assertEqual(event_queue.queue[-1], 'P8_14=False')
+        hal.set_input(hal.LIGHTBARRIER4_PIN, True)
+        c.on_poll()
+        self.assertEqual(event_queue.queue[-1], 'P8_17=True')
+        hal.set_input(hal.LIGHTBARRIER4_PIN, False)
+        c.on_poll()
+        self.assertEqual(event_queue.queue[-1], 'P8_17=False')
+        hal.set_input(hal.LIGHTBARRIER5_PIN, True)
+        c.on_poll()
+        self.assertEqual(event_queue.queue[-1], 'P8_19=True')
+        hal.set_input(hal.LIGHTBARRIER5_PIN, False)
+        c.on_poll()
+        self.assertEqual(event_queue.queue[-1], 'P8_19=False')
