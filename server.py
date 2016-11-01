@@ -98,7 +98,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
   def write_out_events(self):
     try:
       while True:
-        event = self._event_listener.events.pop()
+        event = self._event_listener.events.pop(0)
         print "posting %s..." % repr(event)
         self.write_message(event)
     except IndexError:
