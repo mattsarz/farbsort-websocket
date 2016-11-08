@@ -4,7 +4,7 @@ Setup
 Checkout:
 
 ```
-git clone git://github.com/ppoile/farbsort-websocket
+git clone https://github.com/bbvch/farbsort-websocket.git
 ```
 
 Preparation:
