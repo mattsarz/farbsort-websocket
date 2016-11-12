@@ -30,9 +30,11 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
   def open(self):
     print "new connection opened"
-    self.write_message("Welcome to farbsort control!")
     self.eventPostTimer = tornado.ioloop.PeriodicCallback(self.write_out_events, 100)
     self.eventPostTimer.start()
+    self.write_message("Welcome to farbsort control!")
+    self.write_message("motor.{}".format("started" if self._controller.motor else "stopped"))
+    self.write_message("compressor.{}".format("started" if self._controller.compressor else "stopped"))
 
   def on_message(self, message):
     print "Got:", message
@@ -44,8 +46,8 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         print "starting..."
         self.write_message("starting")
         self._controller.motor = GPIO.HIGH
-      print "started"
-      self.write_message("started")
+      print "motor.started"
+      self.write_message("motor.started")
     elif message == "motor.stop":
       if not self._controller.motor:
         print "motor is already stopped"
@@ -53,8 +55,8 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         print "stopping..."
         self.write_message("stopping")
         self._controller.motor = GPIO.LOW
-      print "stopped"
-      self.write_message("stopped")
+      print "motor.stopped"
+      self.write_message("motor.stopped")
     elif message == "valve1":
         print "valve1.on..."
         self._controller.valve1 = GPIO.HIGH
@@ -80,6 +82,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         print "starting compressor..."
         self._controller.compressor = GPIO.HIGH
       print "compressor started"
+      self.write_message("compressor.started")
     elif message == "compressor.stop":
       if not self._controller.compressor:
         print "compressor is already stopped"
@@ -87,6 +90,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         print "stopping compressor..."
         self._controller.compressor = GPIO.LOW
       print "compressor stopped"
+      self.write_message("compressor.stopped")
 
   def on_close(self):
     self.eventPostTimer.stop
