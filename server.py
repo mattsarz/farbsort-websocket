@@ -33,8 +33,14 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     self.eventPostTimer = tornado.ioloop.PeriodicCallback(self.write_out_events, 100)
     self.eventPostTimer.start()
     self.write_message("Welcome to farbsort control!")
-    self.write_message("motor.{}".format("started" if self._controller.motor else "stopped"))
-    self.write_message("compressor.{}".format("started" if self._controller.compressor else "stopped"))
+    self.write_message("motor={}".format("started" if self._controller.motor else "stopped"))
+    self.write_message("compressor={}".format("started" if self._controller.compressor else "stopped"))
+    self.write_message("lightbarrier1={}".format("on" if self._controller.lightbarrier1 else "off"))
+    self.write_message("lightbarrier2={}".format("on" if self._controller.lightbarrier2 else "off"))
+    self.write_message("lightbarrier3={}".format("on" if self._controller.lightbarrier3 else "off"))
+    self.write_message("lightbarrier4={}".format("on" if self._controller.lightbarrier4 else "off"))
+    self.write_message("lightbarrier5={}".format("on" if self._controller.lightbarrier5 else "off"))
+
 
   def on_message(self, message):
     print "Got:", message
