@@ -63,21 +63,24 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         self._controller.motor = GPIO.LOW
       print "motor.stopped"
       self.write_message("motor.stopped")
-    elif message == "valve1":
+    elif message == "valve1.eject":
         print "valve1.on..."
         self._controller.valve1 = GPIO.HIGH
+        self.write_message("valve1.ejected")
         time.sleep(VALVE_ON_TIME_IN_SECS)
         print "valve1.off..."
         self._controller.valve1 = GPIO.LOW
-    elif message == "valve2":
+    elif message == "valve2.eject":
         print "valve1.on..."
         self._controller.valve2 = GPIO.HIGH
+        self.write_message("valve2.ejected")
         time.sleep(VALVE_ON_TIME_IN_SECS)
         print "valve1.off..."
         self._controller.valve2 = GPIO.LOW
-    elif message == "valve3":
+    elif message == "valve3.eject":
         print "valve3.on..."
         self._controller.valve3 = GPIO.HIGH
+        self.write_message("valve3.ejected")
         time.sleep(VALVE_ON_TIME_IN_SECS)
         print "valve3.off..."
         self._controller.valve3 = GPIO.LOW
