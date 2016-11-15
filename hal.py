@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 
 class Pin(object):
@@ -47,28 +48,23 @@ class HAL_base(object):
   LIGHTBARRIER4 = InputPin("lightbarrier4", "P8_17")
   LIGHTBARRIER5 = InputPin("lightbarrier5", "P8_19")
 
-  def __init__(self, verbose=False):
-    self._verbose = verbose
-    if self._verbose:
-      print "init HAL..."
+  def __init__(self):
+    self._logger = logging.getLogger(self.__class__.__name__)
+    self._logger.debug("init")
     self._output_values = {}
     self._last_input_values = {}
     self._on_input_change_callback_func = None
-    self._analog_input_values = {}
 
   def _handle_input_change(self, pin, value):
     last_value = self._last_input_values.get(pin, None)
     self._last_input_values[pin] = value
     if value != last_value:
-      if self._verbose:
-        print "input %s changed: %s -> %s..." % (pin, last_value, value)
+      self._logger.debug("input {} changed: {} -> {}...".format(pin, last_value, value))
       if self._on_input_change_callback_func:
-        if self._verbose:
-          print "calling callback..."
+        self._logger.debug("calling callback...")
         self._on_input_change_callback_func(pin, value, last_value)
       else:
-        if self._verbose:
-          print "no callback"
+        self._logger.debug("no callback")
     return value
 
   def register_on_input_change_callback(self, func):
@@ -76,8 +72,7 @@ class HAL_base(object):
 
   def set_output(self, pin, value):
     now = datetime.datetime.now()
-    if self._verbose:
-      print "%s: setting %s to %s" % (now.isoformat(), pin, value)
+    self._logger.debug("{}: setting {} to {}".format(now.isoformat(), pin, value))
     self._output_values[pin] = value
 
   def get_output(self, pin):
@@ -100,9 +95,6 @@ class HAL(HAL_base):
     self._setup_pin(self.LIGHTBARRIER3)
     self._setup_pin(self.LIGHTBARRIER4)
     self._setup_pin(self.LIGHTBARRIER5)
-    global ADC
-    import Adafruit_BBIO.ADC as ADC
-    ADC.setup()
 
   def _setup_pin(self, pin):
     direction = GPIO.IN
@@ -119,9 +111,6 @@ class HAL(HAL_base):
     super(HAL, self).set_output(pin, value)
     GPIO.output(pin.pad, value)
 
-  def get_analog_input(self, pin):
-    return ADC.read_raw(pin)
-
 
 class HAL_simulated(HAL_base):
   def __init__(self, **kwargs):
@@ -135,9 +124,3 @@ class HAL_simulated(HAL_base):
     value = self._input_values.get(pin, None)
     self._handle_input_change(pin, value)
     return value
-
-  def set_analog_input(self, pin, value):
-    self._analog_input_values[pin] = value
-
-  def get_analog_input(self, pin):
-    return self._analog_input_values.get(pin, None)

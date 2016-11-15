@@ -8,6 +8,7 @@ import tornado.web
 
 from controller import Controller
 from hal import HAL
+from pru import PRU
 
 
 POLLING_INTERVAL_IN_MS = 1
@@ -132,7 +133,8 @@ if __name__ == "__main__":
     sys.exit(1)
 
   hal = HAL()
-  controller = Controller(hal)
+  pru = PRU()
+  controller = Controller(hal, pru)
   print "controller initialized"
 
   event_listener = EventListener()

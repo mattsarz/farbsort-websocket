@@ -1,28 +1,27 @@
 import fcntl
 import os
+import time
 import threading
+import logging
 
 
 class PRU(object):
-     def __init__(self, verbose=False):
-          self._verbose = verbose
+     def __init__(self):
+          self._logger = logging.getLogger(self.__class__.__name__)
           filename="/dev/rpmsg_pru30"
-          if self._verbose:
-               print "Opening '%s'..." % filename
+          self._logger.debug("init: opening '{}'...".format(filename))
           while True:
                try:
                     self._f = open(filename, "r+")
                except IOError, err:
                     if str(err).startswith("[Errno 2] No such file or directory"):
-                         if self._verbose:
-                              print "No such file! Retrying..."
+                         self._logger.debug("No such file! Retrying...")
                          time.sleep(1)
                          continue
                     raise
                else:
                     break
-          if self._verbose:
-               print "ok"
+          self._logger.debug("init: done")
 
           # enable non-blocking access
           fd = self._f.fileno()
@@ -48,15 +47,13 @@ class PRU(object):
                     raise
                value = ""
           else:
-               if self._verbose:
-                    print value.rstrip("\n\r")
+               self._logger.debug("Got {}".format(value.rstrip("\n\r")))
           return value
 
      def write(self, command):
           command = command.rstrip("\n\r")
-          command = "%s\r" % command
-          if self._verbose:
-               print "Sending %s" % repr(command)
+          command = "{}\r".format(command)
+          self._logger.debug("Sending {}".format(repr(command)))
           self._f.write(command)
 
      def stop(self):
@@ -64,14 +61,58 @@ class PRU(object):
           self._thread.join()
 
 
+class PRU_simulated(object):
+     def __init__(self):
+          self._events_to_be_read = []
+
+     def read(self):
+          if self._events_to_be_read == []:
+               return ""
+          else:
+               value = "\n".join(self._events_to_be_read)
+               self._events_to_be_read = []
+               return value
+
+     def write(self, command):
+          if command == "connect":
+               self._events_to_be_read = [
+                    "motor=stop",
+                    "valve1=off",
+                    "valve2=off",
+                    "valve3=off",
+                    "mode=normal",
+                    "sort-order=blue-red-white",
+                    "controller=stopped",
+                    "conveyor=stopped",
+                    "lightbarrier1=off",
+                    "lightbarrier2=off",
+                    "emergency-stop=off",
+                    "connect",
+               ]
+          elif command == "start":
+               self._events_to_be_read = [
+                    "motor=start",
+                    "controller=started",
+                    "start",
+                    "conveyor=running",
+               ]
+          else:
+               self._events_to_be_read = [command]
+
+
+     def test_post_event(self, event):
+          self._events_to_be_read = [event]
+
+
 if __name__ == "__main__":
      import time
 
      try:
-          pru = PRU(verbose=True)
+          pru = PRU()
           pru.start()
           pru.write("connect")
 
+          global GPIO
           import Adafruit_BBIO.GPIO as GPIO
           GPIO.setup("P8_13", GPIO.OUT)
           GPIO.output("P8_13", GPIO.HIGH)
@@ -104,7 +145,7 @@ if __name__ == "__main__":
                pru.write("stop")
 
      except KeyboardInterrupt:
-          print "\nTerminating..."
+          logging.error("Terminating...")
      finally:
           time.sleep(2)
           GPIO.output("P8_13", GPIO.LOW)

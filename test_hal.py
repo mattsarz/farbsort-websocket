@@ -64,13 +64,3 @@ class TestHAL(unittest.TestCase):
         self.assertTrue(hal.get_output("Output1"))
         hal.set_output("Output1", False)
         self.assertFalse(hal.get_output("Output1"))
-
-    def test_analog_input_default(self):
-        hal = HAL()
-        self.assertEqual(hal.get_analog_input("AnalogInput1"), None)
-
-    def test_analog_input_set(self):
-        hal = HAL()
-        set_value = 3
-        hal.set_analog_input("AnalogInput1", set_value)
-        self.assertEqual(hal.get_analog_input("AnalogInput1"), set_value)
