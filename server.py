@@ -1,5 +1,3 @@
-import time
-
 import Adafruit_BBIO.GPIO as GPIO
 import tornado.httpserver
 import tornado.websocket
@@ -12,7 +10,6 @@ from pru import PRU
 
 
 POLLING_INTERVAL_IN_MS = 1
-VALVE_ON_TIME_IN_SECS = .3
 WEBSOCKET_PORT = 8888
 
 
@@ -30,81 +27,20 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     self._event_listener = event_listener
 
   def open(self):
-    print "new connection opened"
+    print "Connection opened..."
     self.eventPostTimer = tornado.ioloop.PeriodicCallback(self.write_out_events, 100)
     self.eventPostTimer.start()
     self.write_message("Welcome to farbsort control!")
-    self.write_message("motor={}".format("started" if self._controller.motor else "stopped"))
-    self.write_message("compressor={}".format("started" if self._controller.compressor else "stopped"))
-    self.write_message("lightbarrier1={}".format("on" if self._controller.lightbarrier1 else "off"))
-    self.write_message("lightbarrier2={}".format("on" if self._controller.lightbarrier2 else "off"))
-    self.write_message("lightbarrier3={}".format("on" if self._controller.lightbarrier3 else "off"))
-    self.write_message("lightbarrier4={}".format("on" if self._controller.lightbarrier4 else "off"))
-    self.write_message("lightbarrier5={}".format("on" if self._controller.lightbarrier5 else "off"))
-
+    self._controller.connect()
 
   def on_message(self, message):
-    print "Got:", message
-
-    if message == "motor.start":
-      if self._controller.motor:
-        print "motor is already started"
-      else:
-        print "starting..."
-        self.write_message("starting")
-        self._controller.motor = GPIO.HIGH
-      print "motor.started"
-      self.write_message("motor.started")
-    elif message == "motor.stop":
-      if not self._controller.motor:
-        print "motor is already stopped"
-      else:
-        print "stopping..."
-        self.write_message("stopping")
-        self._controller.motor = GPIO.LOW
-      print "motor.stopped"
-      self.write_message("motor.stopped")
-    elif message == "valve1.eject":
-        print "valve1.on..."
-        self._controller.valve1 = GPIO.HIGH
-        self.write_message("valve1.ejected")
-        time.sleep(VALVE_ON_TIME_IN_SECS)
-        print "valve1.off..."
-        self._controller.valve1 = GPIO.LOW
-    elif message == "valve2.eject":
-        print "valve1.on..."
-        self._controller.valve2 = GPIO.HIGH
-        self.write_message("valve2.ejected")
-        time.sleep(VALVE_ON_TIME_IN_SECS)
-        print "valve1.off..."
-        self._controller.valve2 = GPIO.LOW
-    elif message == "valve3.eject":
-        print "valve3.on..."
-        self._controller.valve3 = GPIO.HIGH
-        self.write_message("valve3.ejected")
-        time.sleep(VALVE_ON_TIME_IN_SECS)
-        print "valve3.off..."
-        self._controller.valve3 = GPIO.LOW
-    elif message == "compressor.start":
-      if self._controller.compressor:
-        print "compressor is already started"
-      else:
-        print "starting compressor..."
-        self._controller.compressor = GPIO.HIGH
-      print "compressor started"
-      self.write_message("compressor.started")
-    elif message == "compressor.stop":
-      if not self._controller.compressor:
-        print "compressor is already stopped"
-      else:
-        print "stopping compressor..."
-        self._controller.compressor = GPIO.LOW
-      print "compressor stopped"
-      self.write_message("compressor.stopped")
+    print ">", message
+    self._controller.dispatch_command(message)
 
   def on_close(self):
+    self._controller.disconnect()
     self.eventPostTimer.stop
-    print "Connection was closed..."
+    print "Connection closed."
 
   def check_origin(self, origin):
     return True
@@ -113,7 +49,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     try:
       while True:
         event = self._event_listener.events.pop(0)
-        print "posting %s..." % repr(event)
+        print "<", event
         self.write_message(event)
     except IndexError:
       pass
@@ -124,7 +60,6 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
 if __name__ == "__main__":
   import getpass
-  import Queue
   import signal
   import sys
 
