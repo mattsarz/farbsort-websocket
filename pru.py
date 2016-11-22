@@ -96,6 +96,13 @@ class PRU_simulated(object):
                     "start",
                     "conveyor=running",
                ]
+          elif command == "stop":
+               self._events_to_be_read = [
+                    "motor=stop",
+                    "controller=stopped",
+                    "stop",
+                    "conveyor=stopped",
+               ]
           else:
                self._events_to_be_read = [command]
 
