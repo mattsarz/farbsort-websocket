@@ -68,6 +68,13 @@ class Controller(object):
       for event in events:
         self.post_event(event)
 
+  def on_stdin(self, fd, events):
+    raw_line = fd.readline()
+    self._logger.debug("stdin: Got {}".format(repr(raw_line)))
+    command = raw_line.strip()
+    if command != "":
+      self.post_event(command)
+
   @property
   def compressor(self):
     return self._hal.get_output(self._hal.COMPRESSOR)
