@@ -24,12 +24,14 @@ class WSHandler(tornado.websocket.WebSocketHandler):
   def initialize(self, controller, event_listener):
     self._controller = controller
     self._event_listener = event_listener
+    self._connected = False
+    self.eventPostTimer = tornado.ioloop.PeriodicCallback(self.write_out_events, 100)
+    self.eventPostTimer.start()
 
   def open(self):
     print "Connection opened..."
-    self.eventPostTimer = tornado.ioloop.PeriodicCallback(self.write_out_events, 100)
-    self.eventPostTimer.start()
-    self.write_message("Welcome to farbsort control!")
+    self._connected = True
+    self.write_message("log: Welcome to farbsort control!")
     self._controller.connect()
 
   def on_message(self, message):
@@ -38,7 +40,6 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
   def on_close(self):
     self._controller.disconnect()
-    self.eventPostTimer.stop
     print "Connection closed."
 
   def check_origin(self, origin):
@@ -49,11 +50,13 @@ class WSHandler(tornado.websocket.WebSocketHandler):
       while True:
         event = self._event_listener.events.pop(0)
         print "<", event
-        self.write_message(event)
+        if self._connected:
+          self.write_message(event)
     except IndexError:
       pass
 
   def __del__(self):
+    self.eventPostTimer.stop
     print "WSHandler.__del__()..."
 
 
