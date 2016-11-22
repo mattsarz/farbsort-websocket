@@ -5,7 +5,9 @@ import tornado.web
 
 from controller import Controller
 from hal import HAL
+from hal import HAL_simulated
 from pru import PRU
+from pru import PRU_simulated
 
 
 POLLING_INTERVAL_IN_MS = 1
@@ -69,8 +71,12 @@ if __name__ == "__main__":
     print >> sys.stderr, "run as root"
     sys.exit(1)
 
-  hal = HAL()
-  pru = PRU()
+  if "--simulate" in sys.argv[1:]:
+    hal = HAL_simulated()
+    pru = PRU_simulated()
+  else:
+    hal = HAL()
+    pru = PRU()
   controller = Controller(hal, pru)
   print "controller initialized"
 
