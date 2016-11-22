@@ -1,4 +1,3 @@
-import Adafruit_BBIO.GPIO as GPIO
 import tornado.httpserver
 import tornado.websocket
 import tornado.ioloop
@@ -93,7 +92,7 @@ if __name__ == "__main__":
   tornado.ioloop.IOLoop.instance().start()
 
   # controller.__del__() is not called, so we cleanup here.
-  controller.compressor = GPIO.LOW
-  controller.motor = GPIO.LOW
-  controller.valve1 = GPIO.LOW
+  controller.compressor = False
+  controller.motor = False
+  controller.valve1 = False
   print "done."
