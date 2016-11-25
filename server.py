@@ -94,8 +94,9 @@ if __name__ == "__main__":
                                                  POLLING_INTERVAL_IN_MS)
   pollingTimer.start()
 
-  tornado.ioloop.IOLoop.instance().add_handler(sys.stdin, controller.on_stdin,
-                                               tornado.ioloop.IOLoop.READ)
+  if "--simulate" in sys.argv[1:]:
+    tornado.ioloop.IOLoop.instance().add_handler(sys.stdin, controller.on_stdin,
+                                                 tornado.ioloop.IOLoop.READ)
 
   def signal_handler(signum, frame):
     print "\nterminating IOLoop..."
