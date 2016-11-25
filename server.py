@@ -23,25 +23,37 @@ class EventListener(object):
 
 
 class WSHandler(tornado.websocket.WebSocketHandler):
+  _event_post_timer_instance = None
+  _opened_connection_instances = []
+
   def initialize(self, controller, event_listener):
+    print "{}: WSHandler initialized...".format(self)
     self._controller = controller
     self._event_listener = event_listener
-    self._connected = False
-    self.eventPostTimer = tornado.ioloop.PeriodicCallback(self.write_out_events, 100)
-    self.eventPostTimer.start()
+    if not self._event_post_timer_instance:
+      self._event_post_timer = tornado.ioloop.PeriodicCallback(self.write_out_events, 100)
+      self._event_post_timer.start()
+      self._event_post_timer_instance = self
 
   def open(self):
-    print "Connection opened..."
-    self._connected = True
+    print "{}: Connection opened...".format(self)
+    self._opened_connection_instances.append(self)
     self.write_message("log: Welcome to farbsort control!")
     self._controller.connect()
+
+  def broadcast_message(self, msg):
+    for instance in self._opened_connection_instances:
+      try:
+        instance.write_message(msg)
+      except tornado.websocket.WebSocketClosedError:
+        print "{}: WebSocketClosedError".format(instance)
 
   def on_message(self, message):
     print ">", message
     self._controller.dispatch_command(message)
 
   def on_close(self):
-    self._controller.disconnect()
+    self._opened_connection_instances.remove(self)
     print "Connection closed."
 
   def check_origin(self, origin):
@@ -52,14 +64,15 @@ class WSHandler(tornado.websocket.WebSocketHandler):
       while True:
         event = self._event_listener.events.pop(0)
         print "<", event
-        if self._connected:
-          self.write_message(event)
+        self.broadcast_message(event)
     except IndexError:
       pass
 
   def __del__(self):
-    self.eventPostTimer.stop
-    print "WSHandler.__del__()..."
+    print "{}: WSHandler deleted...".format(self)
+    if self == self._event_post_timer_instance:
+      self._event_post_timer.stop()
+      self._event_post_timer = None
 
 
 if __name__ == "__main__":
