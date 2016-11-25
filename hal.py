@@ -104,6 +104,8 @@ class HAL(HAL_base):
 
   def get_input(self, pin):
     value = GPIO.input(pin.pad)
+    if pin in (self.LIGHTBARRIER3, self.LIGHTBARRIER4, self.LIGHTBARRIER5):
+      value = GPIO.LOW
     self._handle_input_change(pin, value)
     return value
 
