@@ -44,10 +44,10 @@ class Controller(object):
     if self.lightbarrier5:
       display_value = "on"
     self.post_event("lightbarrier5={}".format(display_value))
-    self._pru.write("connect")
+    #self._pru.write(chr(1))
 
   def disconnect(self):
-    self._pru.write("disconnect")
+    self._pru.write(chr(2))
     self._connected = False
 
   def post_event(self, msg):
@@ -123,26 +123,47 @@ class Controller(object):
     return key, value
 
   def dispatch_command(self, command):
+    print "command received"
+    print command
     key, value = self.split_command_into_key_and_value(command)
     if key == "start":
-      self._pru.write(key)
+      self._pru.write(chr(7))
     elif key == "stop":
-      self._pru.write(key)
+      self._pru.write(chr(8))
     elif key == "mode":
-      self._pru.write(command)
+      if value == "normal":
+        self._pru.write(chr(5))
+      else:
+        self._pru.write(chr(6))
     elif key == "motor":
-      self._pru.write(command)
+      if value == "start":
+        self._pru.write(chr(9))
+      else:
+        self._pru.write(chr(10))
     elif key == "valve1":
-      self._pru.write(command)
+      if value == "on":
+        self._pru.write(chr(11))
+      else:
+        self._pru.write(chr(12))
     elif key == "valve2":
-      self._pru.write(command)
+      if value == "on":
+        self._pru.write(chr(13))
+      else:
+        self._pru.write(chr(14))
     elif key == "valve3":
-      self._pru.write(command)
+      if value == "on":
+        self._pru.write(chr(15))
+      else:
+        self._pru.write(chr(16))
     elif key == "compressor":
       set_value = False
       if value in ("on", "start"):
         set_value = True
       self.compressor = set_value
+      if value == "start":
+        self._pru.write(chr(17))
+      else:
+        self._pru.write(chr(18))
 
   def __del__(self):
     self._logger.debug("delete")
@@ -177,7 +198,7 @@ if __name__ == "__main__":
   controller.on_poll()
   controller.compressor = True
   time.sleep(2)
-  controller._pru.write("start")
+  controller._pru.write(chr(7))
 
   try:
     while True:
@@ -186,10 +207,10 @@ if __name__ == "__main__":
   except KeyboardInterrupt:
     print "\nTerminating..."
   finally:
-    controller._pru.write("stop")
+    controller._pru.write(chr(8))
     controller.on_poll()
     time.sleep(2)
     controller.on_poll()
     controller.compressor = False
-    controller._pru.write("disconnect")
+    controller._pru.write(chr(2))
     controller.on_poll()

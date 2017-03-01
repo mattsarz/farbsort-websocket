@@ -12,7 +12,7 @@ class PRU(object):
           self._logger.debug("init: opening '{}'...".format(filename))
           while True:
                try:
-                    self._f = open(filename, "r+")
+                    self._f = open(filename, "rb+")
                except IOError, err:
                     if str(err).startswith("[Errno 2] No such file or directory"):
                          self._logger.debug("No such file! Retrying...")
@@ -51,10 +51,12 @@ class PRU(object):
           return value
 
      def write(self, command):
-          command = command.rstrip("\n\r")
-          command = "{}\r".format(command)
-          self._logger.debug("Sending {}".format(repr(command)))
-          self._f.write(command)
+          #command = command.rstrip("\n\r")
+          #command = "{}\r".format(command)
+          #self._logger.debug("Sending {}".format(ord(command[0])))
+          #self._logger.debug("hurra")
+          #self._f.write("Cmd({})".format(ord(command[0])))
+          self._f.write(command[0])
 
      def stop(self):
           self._thread_exit = True
