@@ -41,12 +41,18 @@ class PRU(object):
 
      def read(self):
           try:
-               value = self._f.read()
+               byte = self._f.read(1)
           except IOError, err:
                if str(err) != "[Errno 11] Resource temporarily unavailable":
                     raise
                value = ""
           else:
+               if byte == b'\x21':
+                    value = "color=blue"
+               elif byte == b'\x22':
+                    value = "color=red"
+               elif byte == b'\x23':
+                    value = "color=white"
                self._logger.debug("Got {}".format(value.rstrip("\n\r")))
           return value
 
@@ -56,7 +62,8 @@ class PRU(object):
           #self._logger.debug("Sending {}".format(ord(command[0])))
           #self._logger.debug("hurra")
           #self._f.write("Cmd({})".format(ord(command[0])))
-          self._f.write(command[0])
+          #self._f.write(command[0])
+          self._f.write(command)
 
      def stop(self):
           self._thread_exit = True

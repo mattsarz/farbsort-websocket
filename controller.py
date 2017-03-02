@@ -127,43 +127,40 @@ class Controller(object):
     print command
     key, value = self.split_command_into_key_and_value(command)
     if key == "start":
-      self._pru.write(chr(7))
+      self._pru.write(b'\x07')
     elif key == "stop":
-      self._pru.write(chr(8))
+      self._pru.write(b'\x08')
     elif key == "mode":
       if value == "normal":
-        self._pru.write(chr(5))
+        self._pru.write(b'\x05')
       else:
-        self._pru.write(chr(6))
+        self._pru.write(b'\x06')
     elif key == "motor":
       if value == "start":
-        self._pru.write(chr(9))
+        self._pru.write(b'\x09')
       else:
-        self._pru.write(chr(10))
+        self._pru.write(b'\x0a')
     elif key == "valve1":
       if value == "on":
-        self._pru.write(chr(11))
+        self._pru.write(b'\x0b')
       else:
-        self._pru.write(chr(12))
+        self._pru.write(b'\x0c')
     elif key == "valve2":
       if value == "on":
-        self._pru.write(chr(13))
+        self._pru.write(b'\x0d')
       else:
-        self._pru.write(chr(14))
+        self._pru.write(b'\x0e')
     elif key == "valve3":
       if value == "on":
-        self._pru.write(chr(15))
+        self._pru.write(b'\x0f')
       else:
-        self._pru.write(chr(16))
+        self._pru.write(b'\x10')
     elif key == "compressor":
       set_value = False
       if value in ("on", "start"):
         set_value = True
       self.compressor = set_value
-      if value == "start":
-        self._pru.write(chr(17))
-      else:
-        self._pru.write(chr(18))
+      
 
   def __del__(self):
     self._logger.debug("delete")
