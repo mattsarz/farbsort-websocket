@@ -47,6 +47,7 @@ class PRU(object):
                     raise
                value = ""
           else:
+               value = ""
                if byte == b'\x21':
                     value = "color=blue"
                elif byte == b'\x22':
@@ -64,7 +65,19 @@ class PRU(object):
                elif byte == b'\x34':
                     value = "lightbarrier2=off"                     
                elif byte == b'\x35':
-                    value = "lightbarrier2=on"                     
+                    value = "lightbarrier2=on" 
+               elif byte == b'\x36':
+                    value = "valve1=on" 
+               elif byte == b'\x37':
+                    value = "valve1=off"
+               elif byte == b'\x38':
+                    value = "valve2=on"                    
+               elif byte == b'\x39':
+                    value = "valve2=off" 
+               elif byte == b'\x3a':
+                    value = "valve3=on" 
+               elif byte == b'\x3b':
+                    value = "valve3=off"                     
                self._logger.debug("Got {}".format(value.rstrip("\n\r")))
           return value
 
