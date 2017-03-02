@@ -57,6 +57,14 @@ class PRU(object):
                     value = "conveyor=stopped"
                elif byte == b'\x31':
                     value = "conveyor=running"                    
+               elif byte == b'\x32':
+                    value = "lightbarrier1=off" 
+               elif byte == b'\x33':
+                    value = "lightbarrier1=on" 
+               elif byte == b'\x34':
+                    value = "lightbarrier2=off"                     
+               elif byte == b'\x35':
+                    value = "lightbarrier2=on"                     
                self._logger.debug("Got {}".format(value.rstrip("\n\r")))
           return value
 
