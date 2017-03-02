@@ -53,6 +53,10 @@ class PRU(object):
                     value = "color=red"
                elif byte == b'\x23':
                     value = "color=white"
+               elif byte == b'\x30':
+                    value = "conveyor=stopped"
+               elif byte == b'\x31':
+                    value = "conveyor=running"                    
                self._logger.debug("Got {}".format(value.rstrip("\n\r")))
           return value
 
