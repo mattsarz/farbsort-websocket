@@ -1,7 +1,7 @@
 .PHONY: run-server tests install
 
 run-server:
-	sudo venv/bin/python server.py
+	sudo python server.py
 
 tests:
 	nosetests -v .

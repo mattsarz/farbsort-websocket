@@ -8,10 +8,7 @@ git clone https://github.com/bbvch/farbsort-websocket.git
 
 Preparation:
 ```
-cd farbsort-websocket
-virtualenv venv
-source venv/bin/activate
-pip install -r requirements.txt
+sudo apt-get install python-tornado
 ```
 
 
@@ -20,12 +17,12 @@ Run
 
 Run server:
 ```
-sudo venv/bin/python server.py
+sudo python server.py
 ```
 
 Run server in simulation mode:
 ```
-sudo venv/bin/python server.py --simulate
+python server.py --simulate
 ```
 
 
@@ -39,5 +36,5 @@ make tests
 
 Run simulation test script:
 ```
-./test-one-stone-at-a-time.sh | sudo venv/bin/python server.py --simulate
+./test-one-stone-at-a-time.sh | python server.py --simulate
 ```
