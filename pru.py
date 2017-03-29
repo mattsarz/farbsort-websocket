@@ -77,8 +77,11 @@ class PRU(object):
                elif byte == b'\x3a':
                     value = "valve3=on" 
                elif byte == b'\x3b':
-                    value = "valve3=off"                     
-               self._logger.debug("Got {}".format(value.rstrip("\n\r")))
+                    value = "valve3=off"
+               else:
+                    self._logger.warning("Got unexpected command: 0x{:02x}".format(ord(byte)))
+               if value:
+                    self._logger.debug("Got {!r} (0x{:02x})".format(value, ord(byte)))
           return value
 
      def write(self, command):
