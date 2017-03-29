@@ -59,14 +59,10 @@ class Controller(object):
     self._hal.get_input(self._hal.LIGHTBARRIER4)
     self._hal.get_input(self._hal.LIGHTBARRIER5)
 
-    chunk = self._pru.read()
-    if chunk != "":
-      self._logger.debug("Got {}".format(repr(chunk)))
-      chunk = chunk.replace("\r", "\n")
-      chunk = chunk.rstrip("\n")
-      events = chunk.split("\n")
-      for event in events:
-        self.post_event(event)
+    event = self._pru.read()
+    if event != "":
+      self._logger.debug("Got {}".format(repr(event)))
+      self.post_event(event)
 
   def on_stdin(self, fd, events):
     raw_line = fd.readline()
