@@ -1,0 +1,8 @@
+[Unit]
+Description=Farbsort-Websocket Server
+
+[Service]
+ExecStart=/usr/bin/python /opt/source/farbsort-websocket/server.py
+
+[Install]
+WantedBy=multi-user.target
