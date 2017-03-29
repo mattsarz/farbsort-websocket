@@ -6,6 +6,36 @@ import logging
 
 
 class PRU(object):
+     _infoMapping = {
+          0x21: "color=blue",
+          0x22: "color=red",
+          0x23: "color=white",
+          0x30: "conveyor=stopped",
+          0x31: "conveyor=running",
+          0x32: "lightbarrier1=off",
+          0x33: "lightbarrier1=on",
+          0x34: "lightbarrier2=off",
+          0x35: "lightbarrier2=on",
+          0x36: "valve1=on",
+          0x37: "valve1=off",
+          0x38: "valve2=on",
+          0x39: "valve2=off",
+          0x3a: "valve3=on",
+          0x3b: "valve3=off",
+          0x83: "verbose=on",
+          0x84: "verbose=off",
+          0x85: "mode=normal",
+          0x86: "mode=diagnostic",
+          0x07: "controller=started",
+          0x08: "controller=stopped",
+          0x89: "motor=start",
+          0x8a: "motor=stop",
+          0xa0: "emergency-stop=off",
+          0xa1: "emergency-stop=on",
+          0xa2: "conveyor=running",
+          0xa3: "conveyor=stopped",
+     }
+
      def __init__(self):
           self._logger = logging.getLogger(self.__class__.__name__)
           filename="/dev/rpmsg_pru30"
@@ -47,41 +77,12 @@ class PRU(object):
                     raise
                value = ""
           else:
-               value = ""
-               if byte == b'\x21':
-                    value = "color=blue"
-               elif byte == b'\x22':
-                    value = "color=red"
-               elif byte == b'\x23':
-                    value = "color=white"
-               elif byte == b'\x30':
-                    value = "conveyor=stopped"
-               elif byte == b'\x31':
-                    value = "conveyor=running"                    
-               elif byte == b'\x32':
-                    value = "lightbarrier1=off" 
-               elif byte == b'\x33':
-                    value = "lightbarrier1=on" 
-               elif byte == b'\x34':
-                    value = "lightbarrier2=off"                     
-               elif byte == b'\x35':
-                    value = "lightbarrier2=on" 
-               elif byte == b'\x36':
-                    value = "valve1=on" 
-               elif byte == b'\x37':
-                    value = "valve1=off"
-               elif byte == b'\x38':
-                    value = "valve2=on"                    
-               elif byte == b'\x39':
-                    value = "valve2=off" 
-               elif byte == b'\x3a':
-                    value = "valve3=on" 
-               elif byte == b'\x3b':
-                    value = "valve3=off"
-               else:
-                    self._logger.warning("Got unexpected command: 0x{:02x}".format(ord(byte)))
+               info_code = ord(byte)
+               value = self._infoMapping.get(info_code, "")
                if value:
                     self._logger.debug("Got {!r} (0x{:02x})".format(value, ord(byte)))
+               else:
+                    self._logger.warning("Got unexpected info: 0x{:02x}".format(info_code))
           return value
 
      def write(self, command):
