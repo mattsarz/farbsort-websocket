@@ -51,10 +51,15 @@ run_white_stone () {
 }
 
 
+echo "Waiting 10 secs before we begin with the first stone..." >&2
 sleep 10
+echo "...and here we go..." >&2
+
 run_blue_stone &
 sleep 3
 run_red_stone &
 sleep 3
 run_white_stone &
 sleep 10
+
+echo "done" >&2
