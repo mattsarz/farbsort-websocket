@@ -80,14 +80,13 @@ if __name__ == "__main__":
   import signal
   import sys
 
-  if getpass.getuser() != "root":
-    print >> sys.stderr, "run as root"
-    sys.exit(1)
-
   if "--simulate" in sys.argv[1:]:
     hal = HAL_simulated()
     pru = PRU_simulated()
   else:
+    if getpass.getuser() != "root":
+      print >> sys.stderr, "run as root"
+      sys.exit(1)
     hal = HAL()
     pru = PRU()
   controller = Controller(hal, pru)
