@@ -83,6 +83,18 @@ class Controller(object):
       display_value = "start"
     self.post_event("compressor={}".format(display_value))
     return retval
+  
+  @property
+  def conveyor(self):
+    return self._hal.get_output(self._hal.MOTOR)
+
+  @conveyor.setter
+  def conveyor(self, value):
+    display_value = "stopped"
+    if value:
+      display_value = "running"
+    self.post_event("conveyor={}".format(display_value))
+    return self._hal.get_output(self._hal.MOTOR)
 
   @property
   def lightbarrier3(self):
@@ -132,10 +144,13 @@ class Controller(object):
       else:
         self._pru.write(b'\x06')
     elif key == "motor":
+      set_value = False
       if value == "start":
         self._pru.write(b'\x09')
+        set_value = True
       else:
         self._pru.write(b'\x0a')
+      self.conveyor = set_value
     elif key == "valve1":
       if value == "on":
         self._pru.write(b'\x0b')

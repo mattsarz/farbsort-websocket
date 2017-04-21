@@ -65,13 +65,10 @@ run_white_stone () {
     echo "lightbarrier5=off"
 }
 
-echo "Setting up the hardware in 5 secs" >&2
-sleep 5
-echo "Set up the hardware now..." >&2
-start_hardware &
-
-echo "Waiting 10 secs before we begin with the first stone..." >&2
+echo "Waiting 10 secs before we setup the hardware and begin with the first stone..." >&2
 sleep 10
+
+start_hardware &
 echo "...and here we go..." >&2
 
 run_blue_stone &
