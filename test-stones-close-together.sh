@@ -26,8 +26,9 @@ run_blue_stone () {
     echo "valve1=on"
     sleep .3
     echo "valve1=off"
+    sleep .1
     echo "lightbarrier3=on"
-    sleep .45
+    sleep 3
     echo "lightbarrier3=off"
 }
 
@@ -45,8 +46,9 @@ run_red_stone () {
     echo "valve2=on"
     sleep .3
     echo "valve2=off"
+    sleep .1
     echo "lightbarrier4=on"
-    sleep .45
+    sleep 3
     echo "lightbarrier4=off"
 }
 
@@ -64,8 +66,9 @@ run_white_stone () {
     echo "valve3=on"
     sleep .3
     echo "valve3=off"
+    sleep .1
     echo "lightbarrier5=on"
-    sleep .45
+    sleep 3
     echo "lightbarrier5=off"
 }
 
